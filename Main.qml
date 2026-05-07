@@ -11,6 +11,7 @@ Window {
     RowLayout{
         Button{
             text: "Bad to the bone"
+            onClicked: Backend.play("/home/enid/Working/PARPUI/build/Desktop_Qt_6_11_0-Debug/_deps/parp-src/bad-to-the-bone-meme.raw")
         }
     }
 }

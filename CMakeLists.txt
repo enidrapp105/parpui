@@ -13,6 +13,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(parp)
 
+
+
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup(REQUIRES 6.10)
@@ -27,6 +29,8 @@ qt_add_qml_module(appPARPUI
         Main.qml
         QML_FILES
 )
+
+target_compile_definitions(appPARPUI PRIVATE USE_CMAKE)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
