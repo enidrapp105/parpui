@@ -15,6 +15,13 @@ public:
 
 int main(int argc, char *argv[])
 {
+    PaError err;
+    err = Pa_Initialize();
+    checkErr(err);
+    PaStream* keepAliveStream;
+    Pa_OpenDefaultStream(&keepAliveStream, 0, 2, paFloat32, 44100, 512, nullptr, nullptr);
+    Pa_StartStream(keepAliveStream);
+
     QGuiApplication app(argc, argv);
     qmlRegisterSingletonType<Backend>("PARPUI", 1, 0, "Backend",
         [](QQmlEngine*, QJSEngine*) -> QObject* {
@@ -29,7 +36,10 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.loadFromModule("PARPUI", "Main");
 
-    return QCoreApplication::exec();
+    int result = QCoreApplication::exec();
+    err = Pa_Terminate();
+    checkErr(err);
+    return result;
 }
 
 
@@ -39,8 +49,7 @@ void Backend::play(QString file_name){
 
     PaStreamParameters outputParameters;
     PaError err;
-    err = Pa_Initialize();
-    checkErr(err);
+
     paTestData data = {0};
     memcpy(data.file_name, c_file_name, MAX_FILE_NAME);
     unsigned numSamples;
@@ -65,11 +74,9 @@ void Backend::play(QString file_name){
     outputParameters.hostApiSpecificStreamInfo = NULL;
     outputParameters.sampleFormat = PA_SAMPLE_TYPE;
     outputParameters.suggestedLatency =
-        Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
+        Pa_GetDeviceInfo(outputParameters.device)->defaultHighOutputLatency;
     PlaySound(outputParameters, &data, err);
 
-    err = Pa_Terminate();
-    checkErr(err);
     if (data.ringBufferData)
         PaUtil_FreeMemory(data.ringBufferData);
     printf("\n");
