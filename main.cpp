@@ -1,17 +1,34 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <string.h>
+#include <QDir>
 #include <QObject>
 #include <QQmlEngine>
+#include <QtConcurrent>
+#include <QFile>
+#include <QFileInfo>
+#include <QUrl>
+#include <string.h>
 #include "parp.h"
 
-class Backend : public QObject
-{
+
+class Backend : public QObject{
     Q_OBJECT
+    Q_PROPERTY(QStringList sounds READ sounds NOTIFY soundsChanged)
 
 public:
     Q_INVOKABLE void play(QString file_name);
+    Q_INVOKABLE void load_sounds();
+    Q_INVOKABLE void add_sound(QString file_path);
+    QStringList sounds() const { return m_sounds; }
+signals:
+    void soundsChanged();
+
+private:
+    QStringList m_sounds;
+    QString m_sounds_path;
 };
+
+
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +38,8 @@ int main(int argc, char *argv[])
     PaStream* keepAliveStream;
     Pa_OpenDefaultStream(&keepAliveStream, 0, 2, paFloat32, 44100, 512, nullptr, nullptr);
     Pa_StartStream(keepAliveStream);
+
+
 
     QGuiApplication app(argc, argv);
     qmlRegisterSingletonType<Backend>("PARPUI", 1, 0, "Backend",
@@ -35,6 +54,10 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
     engine.loadFromModule("PARPUI", "Main");
+    Backend* backend = engine.singletonInstance<Backend*>("PARPUI", "Backend");
+    if(backend){
+        backend->load_sounds();
+    }
 
     int result = QCoreApplication::exec();
     err = Pa_Terminate();
@@ -42,8 +65,41 @@ int main(int argc, char *argv[])
     return result;
 }
 
+void Backend::load_sounds(){
+    m_sounds_path = QCoreApplication::applicationDirPath() + "/sounds";
+    QDir dir(m_sounds_path);
+    QStringList files = dir.entryList(QStringList() << "*.raw", QDir::Files);
+    m_sounds.clear();
+    for(const QString &file : files){
+        m_sounds.append(m_sounds_path + "/" + file);
+    }
+    emit soundsChanged();
+}
+
+void Backend::add_sound(QString file_path){
+        QString cleaned = QUrl(file_path).toLocalFile();
+        QString file_name = QFileInfo(file_path).fileName();
+        QString dest_path = m_sounds_path + "/" + file_name;
+        qDebug() << "Source:" << cleaned;
+        qDebug() << "Destination:" << dest_path;
+        qDebug() << "Source exists:" << QFile::exists(cleaned);
+        qDebug() << "Sounds dir exists:" << QDir(m_sounds_path).exists();
+        if(QFile::exists(dest_path)){
+            qDebug() << "File already exists at destination";
+            // add replace if it exists prompt
+            QFile::remove(dest_path);
+        }
+        QFile src(cleaned);
+        if(src.copy(dest_path)){
+            m_sounds.append(dest_path);
+            emit soundsChanged();
+        } else {
+            qDebug() << "Failed:" << src.errorString();
+        }
+}
 
 void Backend::play(QString file_name){
+    QtConcurrent::run([=](){
     QByteArray ba = file_name.toLocal8Bit();
     char* c_file_name = ba.data();
 
@@ -80,6 +136,6 @@ void Backend::play(QString file_name){
     if (data.ringBufferData)
         PaUtil_FreeMemory(data.ringBufferData);
     printf("\n");
-
+    });
 }
 #include "main.moc"
