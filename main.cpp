@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QUrl>
+#include <QProcess>
 #include <string.h>
 #include "parp.h"
 
@@ -19,6 +20,8 @@ public:
     Q_INVOKABLE void play(QString file_name);
     Q_INVOKABLE void load_sounds();
     Q_INVOKABLE void add_sound(QString file_path);
+    Q_INVOKABLE void load_devices();
+    Q_INVOKABLE void unload_devices();
     QStringList sounds() const { return m_sounds; }
 signals:
     void soundsChanged();
@@ -74,6 +77,20 @@ void Backend::load_sounds(){
         m_sounds.append(m_sounds_path + "/" + file);
     }
     emit soundsChanged();
+}
+
+void Backend::load_devices(){
+    QProcess process;
+    process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/loaddevices");
+    process.waitForFinished();
+    qDebug() << process.readAllStandardOutput();
+}
+
+void Backend::unload_devices(){
+    QProcess process;
+    process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
+    process.waitForFinished();
+    qDebug() << process.readAllStandardOutput();
 }
 
 void Backend::add_sound(QString file_path){

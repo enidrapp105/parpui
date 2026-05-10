@@ -23,8 +23,14 @@ Window {
             }
             Menu{
                 title: qsTr("&Device")
-                Action {text: qsTr("Load Virtual Mic")}
-                Action {text: qsTr("Unload Virtual Mic")}
+                MenuItem{
+                    text: "Load Virtual Mic"
+                    onTriggered: Backend.load_devices();
+                }
+                MenuItem{
+                    text: "Unload Virtual Mic"
+                    onTriggered: Backend.unload_devices();
+                }
             }
 
         }

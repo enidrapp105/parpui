@@ -12,7 +12,8 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(parp)
-
+FetchContent_GetProperties(parp)
+message(STATUS "parp source dir: ${parp_SOURCE_DIR}")
 
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
@@ -30,7 +31,10 @@ qt_add_qml_module(appPARPUI
         QML_FILES
 )
 
-target_compile_definitions(appPARPUI PRIVATE USE_CMAKE)
+target_compile_definitions(appPARPUI PRIVATE
+    USE_CMAKE
+    PARP_SOURCE_DIR="${parp_SOURCE_DIR}"
+)
 
 file(COPY sounds DESTINATION ${CMAKE_BINARY_DIR})
 
