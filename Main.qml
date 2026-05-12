@@ -11,6 +11,7 @@ Window {
     color: "#1F1F1F"
     visible: true
     title: "PARPUI"
+
     ColumnLayout{
         MenuBar{
 
@@ -18,23 +19,17 @@ Window {
                 title: qsTr("&File")
                 MenuItem{
                     text: "&Add"
-                    onTriggered: fileDialog.open();
+                    onTriggered: fileDialog.open()
                 }
             }
             Menu{
                 title: qsTr("&Device")
                 MenuItem{
-                    text: "Load Virtual Mic"
-                    onTriggered: Backend.load_devices();
-                }
-                MenuItem{
-                    text: "Unload Virtual Mic"
-                    onTriggered: Backend.unload_devices();
+                    text: Backend.virtual_mic_button_text
+                    onTriggered: Backend.load_unload_devices()
                 }
             }
-
         }
-
         RowLayout{
             Repeater {
                 model: Backend.sounds
@@ -44,6 +39,7 @@ Window {
                     ContextMenu.menu: Menu {
                         MenuItem {
                             text: qsTr("Remove")
+                            onTriggered: Backend.remove_sound(modelData)
                         }
                     }
                 }

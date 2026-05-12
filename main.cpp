@@ -15,20 +15,27 @@
 class Backend : public QObject{
     Q_OBJECT
     Q_PROPERTY(QStringList sounds READ sounds NOTIFY soundsChanged)
+    Q_PROPERTY(QString virtual_mic_button_text READ virtual_mic_button_text  NOTIFY virtualmicToggle)
 
 public:
     Q_INVOKABLE void play(QString file_name);
     Q_INVOKABLE void load_sounds();
     Q_INVOKABLE void add_sound(QString file_path);
-    Q_INVOKABLE void load_devices();
-    Q_INVOKABLE void unload_devices();
+    Q_INVOKABLE void load_unload_devices();
+    Q_INVOKABLE void remove_sound(QString file_path);
     QStringList sounds() const { return m_sounds; }
+    QString virtual_mic_button_text() const {return m_virtual_mic_button_text; }
 signals:
     void soundsChanged();
+    void virtualmicToggle();
 
 private:
     QStringList m_sounds;
+    QString m_virtual_mic_button_text;
     QString m_sounds_path;
+
+    bool m_virtual_mic_loaded = true;
+    bool m_initial_startup = true;
 };
 
 
@@ -44,10 +51,11 @@ int main(int argc, char *argv[])
 
 
 
+
     QGuiApplication app(argc, argv);
     qmlRegisterSingletonType<Backend>("PARPUI", 1, 0, "Backend",
         [](QQmlEngine*, QJSEngine*) -> QObject* {
-            return new Backend();
+        return new Backend();
         });
     QQmlApplicationEngine engine;
     QObject::connect(
@@ -60,7 +68,9 @@ int main(int argc, char *argv[])
     Backend* backend = engine.singletonInstance<Backend*>("PARPUI", "Backend");
     if(backend){
         backend->load_sounds();
+        backend->load_unload_devices();
     }
+
 
     int result = QCoreApplication::exec();
     err = Pa_Terminate();
@@ -79,18 +89,36 @@ void Backend::load_sounds(){
     emit soundsChanged();
 }
 
-void Backend::load_devices(){
+void Backend::load_unload_devices(){
+    QtConcurrent::run([=](){
     QProcess process;
-    process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/loaddevices");
+    if(m_initial_startup){
+        process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
+        m_virtual_mic_button_text = "Load Virtual Mic";
+        m_virtual_mic_loaded = false;
+        m_initial_startup = false;
+        emit virtualmicToggle();
+    }else if(!m_virtual_mic_loaded){
+        process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/loaddevices");
+        m_virtual_mic_button_text = "Unload Virtual Mic";
+        m_virtual_mic_loaded = true;
+    }else{
+        process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
+        m_virtual_mic_button_text = "Load Virtual Mic";
+        m_virtual_mic_loaded = false;
+    }
     process.waitForFinished();
+    emit virtualmicToggle();
     qDebug() << process.readAllStandardOutput();
+    });
 }
 
-void Backend::unload_devices(){
+void Backend::remove_sound(QString file_name){
     QProcess process;
-    process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
+    process.start("rm", QStringList() << "-f" << file_name);
     process.waitForFinished();
-    qDebug() << process.readAllStandardOutput();
+    m_sounds.removeAll(file_name);
+    emit soundsChanged();
 }
 
 void Backend::add_sound(QString file_path){
