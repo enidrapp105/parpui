@@ -36,7 +36,7 @@ target_compile_definitions(appPARPUI PRIVATE
     PARP_SOURCE_DIR="${parp_SOURCE_DIR}"
 )
 
-file(COPY sounds DESTINATION ${CMAKE_BINARY_DIR})
+# file(COPY sounds DESTINATION ${CMAKE_BINARY_DIR})
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

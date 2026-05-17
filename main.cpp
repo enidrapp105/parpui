@@ -81,6 +81,10 @@ int main(int argc, char *argv[])
 void Backend::load_sounds(){
     m_sounds_path = QCoreApplication::applicationDirPath() + "/sounds";
     QDir dir(m_sounds_path);
+    if(!dir.exists()){
+        QDir appdir(QCoreApplication::applicationDirPath());
+        appdir.mkdir("sounds", std::nullopt);
+    }
     QStringList files = dir.entryList(QStringList() << "*.raw", QDir::Files);
     m_sounds.clear();
     for(const QString &file : files){
