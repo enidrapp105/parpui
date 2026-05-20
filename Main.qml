@@ -29,6 +29,12 @@ Window {
                     onTriggered: Backend.load_unload_devices()
                 }
             }
+            Menu{
+                title: qsTr("&Help")
+                MenuItem{
+                    text: "About"
+                }
+            }
         }
         RowLayout{
             Repeater {
