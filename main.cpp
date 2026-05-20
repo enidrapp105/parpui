@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QProcess>
 #include <string.h>
+#include <regex.h>
 #include "parp.h"
 
 
@@ -125,26 +126,59 @@ void Backend::remove_sound(QString file_name){
     emit soundsChanged();
 }
 
+static int valid_file(regex_t *regex, char* file_name){
+    int ret;
+    ret = regexec(regex, file_name, 0, NULL, 0);
+    if(!ret)
+        return ret;
+    else if(ret == REG_NOMATCH){}
+    else{
+        fprintf(stderr, "REGEX ERROR OCCURRED\n");
+        exit(1);
+    }
+    return ret;
+}
+
 void Backend::add_sound(QString file_path){
-        QString cleaned = QUrl(file_path).toLocalFile();
-        QString file_name = QFileInfo(file_path).fileName();
-        QString dest_path = m_sounds_path + "/" + file_name;
-        qDebug() << "Source:" << cleaned;
-        qDebug() << "Destination:" << dest_path;
-        qDebug() << "Source exists:" << QFile::exists(cleaned);
-        qDebug() << "Sounds dir exists:" << QDir(m_sounds_path).exists();
-        if(QFile::exists(dest_path)){
-            qDebug() << "File already exists at destination";
-            // add replace if it exists prompt
-            QFile::remove(dest_path);
-        }
-        QFile src(cleaned);
-        if(src.copy(dest_path)){
-            m_sounds.append(dest_path);
+    QString cleaned = QUrl(file_path).toLocalFile();
+    QString file_name = QFileInfo(file_path).fileName();
+    QString dest_path = m_sounds_path + "/" + file_name;
+    regex_t mp3regex;
+    regex_t rawregex;
+    QProcess process;
+    QByteArray ba = dest_path.toLocal8Bit();
+    char* c_dest_path = ba.data();
+
+    qDebug() << "Source:" << cleaned;
+    qDebug() << "Destination:" << dest_path;
+    qDebug() << "Source exists:" << QFile::exists(cleaned);
+    qDebug() << "Sounds dir exists:" << QDir(m_sounds_path).exists();
+    if(QFile::exists(dest_path)){
+        qDebug() << "File already exists at destination";
+        // add replace if it exists prompt
+        QFile::remove(dest_path);
+    }
+
+
+
+    //dest_path = QString::fromLatin1(c_dest_path);
+    QFile src(cleaned);
+    if(src.copy(dest_path)){
+        regcomp(&mp3regex, "^.+\\.(mp3)$", REG_EXTENDED);
+        regcomp(&rawregex, "^.+\\.(raw)$", REG_EXTENDED);
+        if(valid_file(&mp3regex, c_dest_path) == 0){
+            char raw_name[MAX_FILE_NAME] = {0};
+            convert_mp3_to_raw(c_dest_path, raw_name, sizeof(raw_name));
+            snprintf(c_dest_path, sizeof(raw_name), "%s", raw_name);
+            m_sounds.append(QString::fromLatin1(c_dest_path));
             emit soundsChanged();
-        } else {
-            qDebug() << "Failed:" << src.errorString();
+            process.start("rm", QStringList() << "-f" << dest_path);
+            process.waitForFinished();
         }
+    } else {
+        qDebug() << "Failed:" << src.errorString();
+    }
+
 }
 
 void Backend::play(QString file_name){

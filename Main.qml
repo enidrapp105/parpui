@@ -51,7 +51,7 @@ Window {
     FileDialog {
         id: fileDialog
         title: "Select a sound file"
-        nameFilters: ["Raw audio files (*.raw)", "All files (*)"]
+        nameFilters: ["MP3 files (*.mp3)", "Raw audio files (*.raw)", "All files (*)"]
         onAccepted: {
             Backend.add_sound(fileDialog.selectedFile)
         }
