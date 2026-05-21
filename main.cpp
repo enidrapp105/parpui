@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
     int result = QCoreApplication::exec();
 
-    QDir dir(QCoreApplication::applicationDirPath() + "/sounds/");
+    QDir dir(QCoreApplication::applicationDirPath() + "/sounds/temp/");
     QStringList files = dir.entryList(QStringList() << "*.raw", QDir::Files);
     for (const QString &file : files) {
         dir.remove(file);
@@ -92,6 +92,7 @@ void Backend::load_sounds(){
     if(!dir.exists()){
         QDir appdir(QCoreApplication::applicationDirPath());
         appdir.mkdir("sounds", std::nullopt);
+        appdir.mkdir("sounds/temp", std::nullopt);
     }
     QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
     m_sounds.clear();
@@ -175,15 +176,27 @@ void Backend::add_sound(QString file_path){
 void Backend::play(QString file_name){
     QtConcurrent::run([=](){
     QByteArray ba = file_name.toLocal8Bit();
+    char* c_file_name = ba.data();
     regex_t mp3regex;
     regex_t rawregex;
-    char* c_file_name = ba.data();
+
     regcomp(&mp3regex, "^.+\\.(mp3)$", REG_EXTENDED);
     regcomp(&rawregex, "^.+\\.(raw)$", REG_EXTENDED);
     if(valid_file(&mp3regex, c_file_name) == 0){
         char raw_name[MAX_FILE_NAME] = {0};
-        convert_mp3_to_raw(c_file_name, raw_name, sizeof(raw_name));
+        QFile src(file_name);
+        QString file = file_name.split('/').last();
+        QString mp3_temp_path = m_sounds_path + "/temp/" + file;
+        QByteArray ba = mp3_temp_path.toLocal8Bit();
+        char* c_mp3_temp_name = ba.data();
+        src.copy(mp3_temp_path);
+        convert_mp3_to_raw(c_mp3_temp_name, raw_name, sizeof(raw_name));
         snprintf(c_file_name, sizeof(raw_name), "%s", raw_name);
+        QDir dir(m_sounds_path + "/temp/");
+        QStringList files = dir.entryList(QStringList() << "*.mp3", QDir::Files);
+        for (const QString &file : files) {
+            dir.remove(file);
+        }
         m_sounds.removeAll(file_name);
         m_sounds.append(QString::fromLatin1(c_file_name));
         emit soundsChanged();
