@@ -44,6 +44,7 @@ private:
 int main(int argc, char *argv[])
 {
     PaError err;
+    QProcess process;
     err = Pa_Initialize();
     checkErr(err);
     PaStream* keepAliveStream;
@@ -74,6 +75,12 @@ int main(int argc, char *argv[])
 
 
     int result = QCoreApplication::exec();
+
+    QDir dir(QCoreApplication::applicationDirPath() + "/sounds/");
+    QStringList files = dir.entryList(QStringList() << "*.raw", QDir::Files);
+    for (const QString &file : files) {
+        dir.remove(file);
+    }
     err = Pa_Terminate();
     checkErr(err);
     return result;
@@ -86,7 +93,7 @@ void Backend::load_sounds(){
         QDir appdir(QCoreApplication::applicationDirPath());
         appdir.mkdir("sounds", std::nullopt);
     }
-    QStringList files = dir.entryList(QStringList() << "*.raw", QDir::Files);
+    QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
     m_sounds.clear();
     for(const QString &file : files){
         m_sounds.append(m_sounds_path + "/" + file);
@@ -143,11 +150,6 @@ void Backend::add_sound(QString file_path){
     QString cleaned = QUrl(file_path).toLocalFile();
     QString file_name = QFileInfo(file_path).fileName();
     QString dest_path = m_sounds_path + "/" + file_name;
-    regex_t mp3regex;
-    regex_t rawregex;
-    QProcess process;
-    QByteArray ba = dest_path.toLocal8Bit();
-    char* c_dest_path = ba.data();
 
     qDebug() << "Source:" << cleaned;
     qDebug() << "Destination:" << dest_path;
@@ -159,22 +161,11 @@ void Backend::add_sound(QString file_path){
         QFile::remove(dest_path);
     }
 
-
-
     //dest_path = QString::fromLatin1(c_dest_path);
     QFile src(cleaned);
     if(src.copy(dest_path)){
-        regcomp(&mp3regex, "^.+\\.(mp3)$", REG_EXTENDED);
-        regcomp(&rawregex, "^.+\\.(raw)$", REG_EXTENDED);
-        if(valid_file(&mp3regex, c_dest_path) == 0){
-            char raw_name[MAX_FILE_NAME] = {0};
-            convert_mp3_to_raw(c_dest_path, raw_name, sizeof(raw_name));
-            snprintf(c_dest_path, sizeof(raw_name), "%s", raw_name);
-            m_sounds.append(QString::fromLatin1(c_dest_path));
-            emit soundsChanged();
-            process.start("rm", QStringList() << "-f" << dest_path);
-            process.waitForFinished();
-        }
+        m_sounds.append(dest_path);
+        emit soundsChanged();
     } else {
         qDebug() << "Failed:" << src.errorString();
     }
@@ -184,8 +175,19 @@ void Backend::add_sound(QString file_path){
 void Backend::play(QString file_name){
     QtConcurrent::run([=](){
     QByteArray ba = file_name.toLocal8Bit();
+    regex_t mp3regex;
+    regex_t rawregex;
     char* c_file_name = ba.data();
-
+    regcomp(&mp3regex, "^.+\\.(mp3)$", REG_EXTENDED);
+    regcomp(&rawregex, "^.+\\.(raw)$", REG_EXTENDED);
+    if(valid_file(&mp3regex, c_file_name) == 0){
+        char raw_name[MAX_FILE_NAME] = {0};
+        convert_mp3_to_raw(c_file_name, raw_name, sizeof(raw_name));
+        snprintf(c_file_name, sizeof(raw_name), "%s", raw_name);
+        m_sounds.removeAll(file_name);
+        m_sounds.append(QString::fromLatin1(c_file_name));
+        emit soundsChanged();
+    }
     PaStreamParameters outputParameters;
     PaError err;
 

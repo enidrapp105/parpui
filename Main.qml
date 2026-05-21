@@ -40,7 +40,7 @@ Window {
             Repeater {
                 model: Backend.sounds
                 Button {
-                    text: modelData.split("/").pop().replace(".raw", "")
+                    text: modelData.split("/").pop().replace(/\.(raw|mp3)$/, "")
                     onClicked: Backend.play(modelData)
                     ContextMenu.menu: Menu {
                         MenuItem {
