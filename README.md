@@ -1,5 +1,5 @@
 # parpui
-## parp frontend
+## parp soundboard
 Go check out [parp](https://github.com/enidrapp105/parp)
 for backend code
 
