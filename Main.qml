@@ -30,6 +30,13 @@ Window {
                 }
             }
             Menu{
+                title: qsTr("&Sound")
+                MenuItem{
+                    text: "Stop"
+                }
+            }
+
+            Menu{
                 title: qsTr("&Help")
                 MenuItem{
                     text: "About"
