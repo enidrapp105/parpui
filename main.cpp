@@ -12,6 +12,12 @@
 #include <regex.h>
 #include "parp.h"
 
+struct Sound {
+    QString display_path;   // original .mp3 — what the UI shows and buttons reference
+    QString playback_path;  // .raw in temp — populated after first play, empty until then
+    bool is_converted() const { return !playback_path.isEmpty(); }
+};
+
 
 class Backend : public QObject{
     Q_OBJECT
@@ -24,14 +30,24 @@ public:
     Q_INVOKABLE void add_sound(QString file_path);
     Q_INVOKABLE void load_unload_devices();
     Q_INVOKABLE void remove_sound(QString file_path);
-    QStringList sounds() const { return m_sounds; }
+    QStringList sounds() const {
+        QStringList result;
+        for (const Sound &s : m_sounds)
+            result.append(s.display_path);
+        return result;
+    }
     QString virtual_mic_button_text() const {return m_virtual_mic_button_text; }
 signals:
     void soundsChanged();
     void virtualmicToggle();
 
 private:
-    QStringList m_sounds;
+    Sound* find_sound(const QString &display_path){
+        for(Sound &s : m_sounds)
+            if(s.display_path == display_path) return &s;
+        return nullptr;
+    }
+    QList<Sound> m_sounds;
     QString m_virtual_mic_button_text;
     QString m_sounds_path;
 
@@ -97,7 +113,7 @@ void Backend::load_sounds(){
     QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
     m_sounds.clear();
     for(const QString &file : files){
-        m_sounds.append(m_sounds_path + "/" + file);
+        m_sounds.append({m_sounds_path + "/" + file, ""});
     }
     emit soundsChanged();
 }
@@ -126,11 +142,13 @@ void Backend::load_unload_devices(){
     });
 }
 
-void Backend::remove_sound(QString file_name){
-    QProcess process;
-    process.start("rm", QStringList() << "-f" << file_name);
-    process.waitForFinished();
-    m_sounds.removeAll(file_name);
+void Backend::remove_sound(QString file_path){
+    Sound *s = find_sound(file_path);
+    if(!s) return;
+
+    QDir(m_sounds_path).remove(QFileInfo(file_path).fileName());
+
+    m_sounds.removeIf([&](const Sound &s){ return s.display_path == file_path; });
     emit soundsChanged();
 }
 
@@ -149,7 +167,7 @@ static int valid_file(regex_t *regex, char* file_name){
 
 void Backend::add_sound(QString file_path){
     QString cleaned = QUrl(file_path).toLocalFile();
-    QString file_name = QFileInfo(file_path).fileName();
+    QString file_name = QFileInfo(cleaned).fileName();
     QString dest_path = m_sounds_path + "/" + file_name;
 
     qDebug() << "Source:" << cleaned;
@@ -158,14 +176,13 @@ void Backend::add_sound(QString file_path){
     qDebug() << "Sounds dir exists:" << QDir(m_sounds_path).exists();
     if(QFile::exists(dest_path)){
         qDebug() << "File already exists at destination";
-        // add replace if it exists prompt
         QFile::remove(dest_path);
     }
 
     //dest_path = QString::fromLatin1(c_dest_path);
     QFile src(cleaned);
     if(src.copy(dest_path)){
-        m_sounds.append(dest_path);
+        m_sounds.append({dest_path, ""});
         emit soundsChanged();
     } else {
         qDebug() << "Failed:" << src.errorString();
@@ -175,37 +192,50 @@ void Backend::add_sound(QString file_path){
 
 void Backend::play(QString file_name){
     QtConcurrent::run([=](){
+    char play_target[MAX_FILE_NAME] = {0};
+
     QByteArray ba = file_name.toLocal8Bit();
     char* c_file_name = ba.data();
-    regex_t mp3regex;
-    regex_t rawregex;
-
+    regex_t rawregex, mp3regex;
     regcomp(&mp3regex, "^.+\\.(mp3)$", REG_EXTENDED);
     regcomp(&rawregex, "^.+\\.(raw)$", REG_EXTENDED);
+
     if(valid_file(&mp3regex, c_file_name) == 0){
-        char raw_name[MAX_FILE_NAME] = {0};
-        QFile src(file_name);
-        QString file = file_name.split('/').last();
-        QString mp3_temp_path = m_sounds_path + "/temp/" + file;
-        QByteArray ba = mp3_temp_path.toLocal8Bit();
-        char* c_mp3_temp_name = ba.data();
-        src.copy(mp3_temp_path);
-        convert_mp3_to_raw(c_mp3_temp_name, raw_name, sizeof(raw_name));
-        snprintf(c_file_name, sizeof(raw_name), "%s", raw_name);
-        QDir dir(m_sounds_path + "/temp/");
-        QStringList files = dir.entryList(QStringList() << "*.mp3", QDir::Files);
-        for (const QString &file : files) {
-            dir.remove(file);
+        Sound *s = find_sound(file_name);
+        if(s && s->is_converted()){
+            strncpy(play_target, s->playback_path.toLocal8Bit().data(), MAX_FILE_NAME - 1);
+        } else{
+            QString file = QFileInfo(file_name).fileName();
+            QString mp3_temp = m_sounds_path + "/temp/" + file;
+            char raw_name[MAX_FILE_NAME] = {0};
+
+            QFile(file_name).copy(mp3_temp);
+            QByteArray tmp_ba = mp3_temp.toLocal8Bit();
+            convert_mp3_to_raw(tmp_ba.data(), raw_name, sizeof(raw_name));
+
+            QFile::remove(mp3_temp);
+
+            strncpy(play_target, raw_name, MAX_FILE_NAME - 1);
+
+            if (s) s->playback_path = QString::fromLocal8Bit(raw_name);
         }
-        m_sounds.removeAll(file_name);
-        m_sounds.append(QString::fromLatin1(c_file_name));
-        emit soundsChanged();
+    } else if (valid_file(&rawregex, c_file_name) == 0){
+        strncpy(play_target, ba.data(), MAX_FILE_NAME - 1);
     }
+
+    regfree(&mp3regex);
+    regfree(&rawregex);
+
+    if (play_target[0] == '\0') {
+        qDebug() << "play: unrecognised file type, aborting";
+        return;
+    }
+
     PaStreamParameters outputParameters;
     PaError err;
 
     paTestData data = {0};
-    memcpy(data.file_name, c_file_name, MAX_FILE_NAME);
+    memcpy(data.file_name, play_target, MAX_FILE_NAME);
     unsigned numSamples;
     unsigned numBytes;
     numSamples = NextPowerOf2((unsigned)(SAMPLE_RATE * 0.5 * NUM_CHANNELS));
