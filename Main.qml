@@ -40,6 +40,7 @@ Window {
                 title: qsTr("&Help")
                 MenuItem{
                     text: "About"
+                    onTriggered: aboutDialog.open()
                 }
             }
         }
@@ -57,6 +58,19 @@ Window {
                     }
                 }
 
+            }
+        }
+    }
+    Dialog {
+        id: aboutDialog
+        title: "About PARPUI"
+        anchors.centerIn: parent
+        modal: true
+        standardButtons: Dialog.Ok
+        ColumnLayout{
+            Text {
+                text: qsTr("PARPUI is a soundboard created by Enid Rapp")
+                styleColor: "#FFFFFF"
             }
         }
     }

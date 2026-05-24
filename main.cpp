@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE void add_sound(QString file_path);
     Q_INVOKABLE void load_unload_devices();
     Q_INVOKABLE void remove_sound(QString file_path);
+
     QStringList sounds() const {
         QStringList result;
         for (const Sound &s : m_sounds)
