@@ -70,8 +70,15 @@ Window {
         ColumnLayout{
             Text {
                 text: qsTr("PARPUI is a soundboard created by Enid Rapp")
-                styleColor: "#FFFFFF"
+                color: "#FFFFFF"
             }
+            Text {
+                id: link_Text
+                text: '<html><a href="http://https://github.com/enidrapp105/parpui">Check out the progress on Github!</a></html>'
+                onLinkActivated: Qt.openUrlExternally(link)
+                linkColor: "#4060FF"
+            }
+
         }
     }
 
