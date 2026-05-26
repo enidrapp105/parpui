@@ -74,7 +74,7 @@ Window {
             }
             Text {
                 id: link_Text
-                text: '<html>Check out the progress on <a href="http://https://github.com/enidrapp105/parpui">GitHub</a>!</html>'
+                text: '<html>Check out the progress on <a href="https://github.com/enidrapp105/parpui">GitHub</a>!</html>'
                 onLinkActivated: Qt.openUrlExternally(link)
                 linkColor: "#4060FF"
                 color: "#FFFFFF"
