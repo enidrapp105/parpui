@@ -3,3 +3,5 @@
 - [x] Add about button
 
 - [x] Add function to the stop button 
+
+- [ ] decouple devices from bash
