@@ -33,6 +33,7 @@ Window {
                 title: qsTr("&Sound")
                 MenuItem{
                     text: "Stop"
+                    onTriggered: Backend.stop_all();
                 }
             }
 

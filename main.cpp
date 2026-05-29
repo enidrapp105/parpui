@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE void add_sound(QString file_path);
     Q_INVOKABLE void load_unload_devices();
     Q_INVOKABLE void remove_sound(QString file_path);
+    Q_INVOKABLE void stop_all();
 
     QStringList sounds() const {
         QStringList result;
@@ -43,6 +44,14 @@ signals:
     void virtualmicToggle();
 
 private:
+    void register_sound(paTestData* d) {
+        QMutexLocker lock(&m_active_mutex);
+        m_active_sounds.append(d);
+    }
+    void unregister_sound(paTestData* d) {
+        QMutexLocker lock(&m_active_mutex);
+        m_active_sounds.removeOne(d);
+    }
     Sound* find_sound(const QString &display_path){
         for(Sound &s : m_sounds)
             if(s.display_path == display_path) return &s;
@@ -51,6 +60,8 @@ private:
     QList<Sound> m_sounds;
     QString m_virtual_mic_button_text;
     QString m_sounds_path;
+    QMutex m_active_mutex;
+    QList<paTestData*> m_active_sounds;
 
     bool m_virtual_mic_loaded = true;
     bool m_initial_startup = true;
@@ -165,6 +176,11 @@ static int valid_file(regex_t *regex, char* file_name){
     }
     return ret;
 }
+void Backend::stop_all(){
+    QMutexLocker lock(&m_active_mutex);
+    for (paTestData *d : m_active_sounds)
+        d->threadSyncFlag = 1;
+}
 
 void Backend::add_sound(QString file_path){
     QString cleaned = QUrl(file_path).toLocalFile();
@@ -190,6 +206,7 @@ void Backend::add_sound(QString file_path){
     }
 
 }
+
 
 void Backend::play(QString file_name){
     QtConcurrent::run([=](){
@@ -260,8 +277,9 @@ void Backend::play(QString file_name){
     outputParameters.sampleFormat = PA_SAMPLE_TYPE;
     outputParameters.suggestedLatency =
         Pa_GetDeviceInfo(outputParameters.device)->defaultHighOutputLatency;
+    register_sound(&data);
     PlaySound(outputParameters, &data, err);
-
+    unregister_sound(&data);
     if (data.ringBufferData)
         PaUtil_FreeMemory(data.ringBufferData);
     printf("\n");
