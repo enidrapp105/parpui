@@ -2,4 +2,4 @@
 
 - [x] Add about button
 
-- [ ] Add function to the stop button 
+- [x] Add function to the stop button 
