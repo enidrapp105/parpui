@@ -177,9 +177,12 @@ static int valid_file(regex_t *regex, char* file_name){
     return ret;
 }
 void Backend::stop_all(){
+    qDebug() << "Stopping all";
     QMutexLocker lock(&m_active_mutex);
-    for (paTestData *d : m_active_sounds)
-        d->threadSyncFlag = 1;
+    qDebug() << "Acquired stop lock";
+    for (paTestData *d : m_active_sounds){
+        d->stopRequested = true;
+    }
 }
 
 void Backend::add_sound(QString file_path){
@@ -253,6 +256,7 @@ void Backend::play(QString file_name){
     PaError err;
 
     paTestData data = {0};
+    data.stopRequested = false;
     memcpy(data.file_name, play_target, MAX_FILE_NAME);
     unsigned numSamples;
     unsigned numBytes;
@@ -277,9 +281,13 @@ void Backend::play(QString file_name){
     outputParameters.sampleFormat = PA_SAMPLE_TYPE;
     outputParameters.suggestedLatency =
         Pa_GetDeviceInfo(outputParameters.device)->defaultHighOutputLatency;
+    qDebug() << "Registering sound";
     register_sound(&data);
+    qDebug() << "Done registering sound";
     PlaySound(outputParameters, &data, err);
+    qDebug() << "Unregistering sound";
     unregister_sound(&data);
+    qDebug() << "Done unregistering sound";
     if (data.ringBufferData)
         PaUtil_FreeMemory(data.ringBufferData);
     printf("\n");
