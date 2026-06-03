@@ -8,6 +8,7 @@
 #include <QFileInfo>
 #include <QUrl>
 #include <QProcess>
+#include <QDesktopServices>
 #include <string.h>
 #include <regex.h>
 #include "parp.h"
@@ -31,6 +32,7 @@ public:
     Q_INVOKABLE void load_unload_devices();
     Q_INVOKABLE void remove_sound(QString file_path);
     Q_INVOKABLE void stop_all();
+    Q_INVOKABLE void open_sounds_folder();
 
     QStringList sounds() const {
         QStringList result;
@@ -184,7 +186,9 @@ void Backend::stop_all(){
         d->stopRequested = true;
     }
 }
-
+void Backend::open_sounds_folder(){
+    QDesktopServices::openUrl(QUrl(m_sounds_path));
+}
 void Backend::add_sound(QString file_path){
     QString cleaned = QUrl(file_path).toLocalFile();
     QString file_name = QFileInfo(cleaned).fileName();

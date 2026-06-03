@@ -21,6 +21,10 @@ Window {
                     text: "&Add"
                     onTriggered: fileDialog.open()
                 }
+                MenuItem{
+                    text: "View Sounds in File Explorer"
+                    onTriggered: Backend.open_sounds_folder()
+                }
             }
             Menu{
                 title: qsTr("&Device")
