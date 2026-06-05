@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
 import PARPUI 1.0
+import PARPUI
 
 
 Window {
@@ -12,47 +13,12 @@ Window {
     visible: true
     title: "PARPUI"
     MouseArea{
-    anchors.fill: parent
-    ContextMenu.menu: Menu{
-        Menu{
-            title: qsTr("&File")
-            MenuItem{
-                text: "&Add"
-                onTriggered: fileDialog.open()
-            }
-            MenuItem{
-                text: "View Sounds in File Explorer"
-                onTriggered: Backend.open_sounds_folder()
-            }
-        }
-        Menu{
-            title: qsTr("&Device")
-            MenuItem{
-                text: Backend.virtual_mic_button_text
-                onTriggered: Backend.load_unload_devices()
-            }
-        }
-        Menu{
-            title: qsTr("&Sound")
-            MenuItem{
-                text: "Stop"
-                onTriggered: Backend.stop_all();
-            }
-        }
-
-        Menu{
-            title: qsTr("&Help")
-            MenuItem{
-                text: "About"
-                onTriggered: aboutDialog.open()
-            }
-        }
-    }
+        anchors.fill: parent
+        ContextMenu.menu: SoundMenu {}
     }
 
     ColumnLayout{
         MenuBar{
-
             Menu{
                 title: qsTr("&File")
                 MenuItem{
