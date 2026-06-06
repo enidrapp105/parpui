@@ -70,6 +70,7 @@ Window {
             }
         }
     }
+
     Dialog {
         id: aboutDialog
         title: "About PARPUI"
