@@ -52,6 +52,9 @@ Window {
                     onTriggered: aboutDialog.open()
                 }
             }
+            MenuBarItem{
+                text: "︿"
+            }
         }
         RowLayout{
             Repeater {
