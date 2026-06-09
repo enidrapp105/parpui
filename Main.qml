@@ -26,6 +26,11 @@ Window {
                     onTriggered: fileDialog.open()
                 }
                 MenuItem{
+                    enabled: false
+                    text: "Create Folder"
+                }
+
+                MenuItem{
                     text: "View Sounds in File Explorer"
                     onTriggered: Backend.open_sounds_folder()
                 }
@@ -52,8 +57,11 @@ Window {
                     onTriggered: aboutDialog.open()
                 }
             }
+
             MenuBarItem{
+                enabled: false
                 text: "︿"
+
             }
         }
         RowLayout{
