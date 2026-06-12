@@ -47,10 +47,15 @@ Window {
                 Menu{
                     title: qsTr("Volume")
                     Slider{
+                        id: volumeSlider
                         from: 0
                         to: 2
                         stepSize: .1
                         onMoved: Backend.volume_setter(value)
+                    }
+                    Text{
+                        text: (volumeSlider.value * 100).toFixed(0)
+                        color: "#FFFFFF"
                     }
                 }
 
