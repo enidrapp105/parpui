@@ -34,6 +34,8 @@ public:
     Q_INVOKABLE void stop_all();
     Q_INVOKABLE void open_sounds_folder();
 
+    Q_INVOKABLE void volume_setter(float volume){m_volume = volume;}
+
     QStringList sounds() const {
         QStringList result;
         for (const Sound &s : m_sounds)
@@ -59,6 +61,7 @@ private:
             if(s.display_path == display_path) return &s;
         return nullptr;
     }
+    float m_volume;
     QList<Sound> m_sounds;
     QString m_virtual_mic_button_text;
     QString m_sounds_path;

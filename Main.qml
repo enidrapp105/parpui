@@ -44,6 +44,16 @@ Window {
             }
             Menu{
                 title: qsTr("&Sound")
+                Menu{
+                    title: qsTr("Volume")
+                    Slider{
+                        from: 0
+                        to: 2
+                        stepSize: .1
+                        onMoved: Backend.volume_setter(value)
+                    }
+                }
+
                 MenuItem{
                     text: "Stop"
                     onTriggered: Backend.stop_all();
