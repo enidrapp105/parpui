@@ -44,9 +44,13 @@ Window {
             }
             Menu{
                 title: qsTr("&Sound")
-                Menu{
-                    title: qsTr("Volume")
-                    contentItem: Row {
+                MenuBarItem {
+                    contentItem: RowLayout {
+                        spacing: 8
+                        Text {
+                            text: qsTr("Volume")
+                            color: "#FFFFFF"
+                        }
                         Text{
                             text: (volumeSlider.value * 100).toFixed(0) + "%"
                             color: "#FFFFFF"
@@ -57,6 +61,7 @@ Window {
                             to: 2
                             stepSize: .01
                             onMoved: Backend.volume_setter(value)
+                            Layout.fillWidth: true
                         }
                     }
                 }
