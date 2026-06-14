@@ -46,16 +46,18 @@ Window {
                 title: qsTr("&Sound")
                 Menu{
                     title: qsTr("Volume")
-                    Slider{
-                        id: volumeSlider
-                        from: 0
-                        to: 2
-                        stepSize: .1
-                        onMoved: Backend.volume_setter(value)
-                    }
-                    Text{
-                        text: (volumeSlider.value * 100).toFixed(0)
-                        color: "#FFFFFF"
+                    contentItem: Row {
+                        Text{
+                            text: (volumeSlider.value * 100).toFixed(0) + "%"
+                            color: "#FFFFFF"
+                        }
+                        Slider{
+                            id: volumeSlider
+                            from: 0
+                            to: 2
+                            stepSize: .01
+                            onMoved: Backend.volume_setter(value)
+                        }
                     }
                 }
 

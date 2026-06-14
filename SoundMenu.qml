@@ -1,4 +1,7 @@
+import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
+
 
 Menu{
     Menu{
@@ -20,7 +23,30 @@ Menu{
         }
     }
     Menu{
+        MenuBarItem {
+            contentItem: RowLayout {
+                spacing: 8
+                Text {
+                    text: qsTr("Volume")
+                    color: "#FFFFFF"
+                }
+                Text{
+                    text: (volumeSlider.value * 100).toFixed(0) + "%"
+                    color: "#FFFFFF"
+                }
+                Slider{
+                    id: volumeSlider
+                    from: 0
+                    to: 2
+                    stepSize: .01
+                    onMoved: Backend.volume_setter(value)
+                    Layout.fillWidth: true
+                }
+            }
+        }
+
         title: qsTr("&Sound")
+
         MenuItem{
             text: "Stop"
             onTriggered: Backend.stop_all();
