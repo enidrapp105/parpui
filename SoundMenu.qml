@@ -30,9 +30,19 @@ Menu{
                     text: qsTr("Volume")
                     color: "#FFFFFF"
                 }
-                Text{
+                TextField{
                     text: (volumeSlider.value * 100).toFixed(0) + "%"
                     color: "#FFFFFF"
+                    implicitWidth: 42
+                    onEditingFinished: {
+                        let val = parseFloat(text.replace("%", " "))
+                        if(!isNaN(val)) {
+                            val = Math.max(0, Math.min(200, val)) / 100
+                            volumeSlider.value = val
+                            Backend.volume_setter(val)
+                        }
+                        text = (volumeSlider.value * 100).toFixed(0) + "%"
+                    }
                 }
                 Slider{
                     id: volumeSlider
