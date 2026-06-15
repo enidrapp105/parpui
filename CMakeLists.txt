@@ -29,7 +29,7 @@ qt_add_qml_module(appPARPUI
     QML_FILES
         Main.qml
         QML_FILES
-        QML_FILES SoundMenu.qml
+        QML_FILES MenuContextBar.qml
         QML_FILES MenuHelp.qml
         QML_FILES MenuDevice.qml
         QML_FILES MenuSound.qml
