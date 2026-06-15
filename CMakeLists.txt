@@ -30,6 +30,10 @@ qt_add_qml_module(appPARPUI
         Main.qml
         QML_FILES
         QML_FILES SoundMenu.qml
+        QML_FILES MenuHelp.qml
+        QML_FILES MenuDevice.qml
+        QML_FILES MenuSound.qml
+        QML_FILES MenuFile.qml
 )
 
 target_compile_definitions(appPARPUI PRIVATE
