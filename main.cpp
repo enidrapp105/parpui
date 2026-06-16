@@ -24,6 +24,7 @@ class Backend : public QObject{
     Q_OBJECT
     Q_PROPERTY(QStringList sounds READ sounds NOTIFY soundsChanged)
     Q_PROPERTY(QString virtual_mic_button_text READ virtual_mic_button_text  NOTIFY virtualmicToggle)
+    Q_PROPERTY(float volume READ volume WRITE volume_setter NOTIFY volumeChanged)
 
 public:
     Q_INVOKABLE void play(QString file_name);
@@ -34,8 +35,13 @@ public:
     Q_INVOKABLE void stop_all();
     Q_INVOKABLE void open_sounds_folder();
 
-    Q_INVOKABLE void volume_setter(float volume){m_volume = volume;}
-
+    Q_INVOKABLE void volume_setter(float volume){
+        if(m_volume != volume){
+            m_volume = volume;
+            emit volumeChanged();
+        }
+    }
+    float volume() const {return m_volume; }
     QStringList sounds() const {
         QStringList result;
         for (const Sound &s : m_sounds)
@@ -46,6 +52,7 @@ public:
 signals:
     void soundsChanged();
     void virtualmicToggle();
+    void volumeChanged();
 
 private:
     void register_sound(paTestData* d) {
@@ -61,7 +68,7 @@ private:
             if(s.display_path == display_path) return &s;
         return nullptr;
     }
-    float m_volume;
+    float m_volume = 1.0f;
     QList<Sound> m_sounds;
     QString m_virtual_mic_button_text;
     QString m_sounds_path;

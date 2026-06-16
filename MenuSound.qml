@@ -12,7 +12,7 @@ Menu{
                 color: "#FFFFFF"
             }
             TextField{
-                text: (volumeSlider.value * 100).toFixed(0) + "%"
+                text: (Backend.volume * 100).toFixed(0) + "%"
                 color: "#FFFFFF"
                 implicitWidth: 42
                 onEditingFinished: {
@@ -27,6 +27,7 @@ Menu{
             }
             Slider{
                 id: volumeSlider
+                value: Backend.volume
                 from: 0
                 to: 2
                 stepSize: .01
