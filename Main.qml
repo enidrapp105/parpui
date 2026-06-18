@@ -9,6 +9,7 @@ import PARPUI
 Window {
     width: 640
     height: 480
+
     color: "#1F1F1F"
     visible: true
     title: "PARPUI"
@@ -30,7 +31,10 @@ Window {
 
             }
         }
-        RowLayout{
+        GridLayout {
+            columns : Math.max(1, Math.ceil(Math.sqrt(Backend.sounds.length)))
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             Repeater {
                 model: Backend.sounds
                 Button {
@@ -40,6 +44,7 @@ Window {
                         Menu {
                             title: qsTr("Add Tag")
                             TextField {
+                                id: tagField
                                 placeholderText: "example: vine sound"
                             }
                         }
