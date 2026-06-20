@@ -12,9 +12,14 @@ Menu{
                 color: "#FFFFFF"
             }
             TextField{
-                text: (Backend.volume * 100).toFixed(0) + "%"
+
                 color: "#FFFFFF"
                 implicitWidth: 42
+                function formatVolume() {
+                    return (Backend.volume * 100).toFixed(0) + "%"
+                }
+                text: formatVolume()
+
                 onEditingFinished: {
                     let val = parseFloat(text.replace("%", " "))
                     if(!isNaN(val)) {
@@ -22,7 +27,7 @@ Menu{
                         volumeSlider.value = val
                         Backend.volume_setter(val)
                     }
-                    text = (volumeSlider.value * 100).toFixed(0) + "%"
+                    text = Qt.binding(formatVolume)
                 }
             }
             Slider{
