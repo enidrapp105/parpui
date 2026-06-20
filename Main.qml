@@ -9,7 +9,8 @@ import PARPUI
 Window {
     width: 640
     height: 480
-
+    minimumHeight: 200
+    minimumWidth: 200
     color: "#1F1F1F"
     visible: true
     title: "PARPUI"
