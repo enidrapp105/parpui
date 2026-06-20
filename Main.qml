@@ -19,6 +19,7 @@ Window {
     }
 
     ColumnLayout{
+        anchors.fill: parent
         MenuBar{
             MenuFile {}
             MenuDevice {}
@@ -31,31 +32,37 @@ Window {
 
             }
         }
-        GridLayout {
-            columns : Math.max(1, Math.ceil(Math.sqrt(Backend.sounds.length)))
+        Flickable {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Repeater {
-                model: Backend.sounds
-                Button {
-                    text: modelData.split("/").pop().replace(/\.(raw|mp3)$/, "")
-                    onClicked: Backend.play(modelData)
-                    ContextMenu.menu: Menu {
-                        Menu {
-                            title: qsTr("Add Tag")
-                            TextField {
-                                id: tagField
-                                placeholderText: "example: vine sound"
+            contentWidth: width
+            contentHeight: soundFlow.height
+
+            Flow {
+                id: soundFlow
+                width: parent.width
+                Repeater {
+                    model: Backend.sounds
+                    Button {
+                        text: modelData.split("/").pop().replace(/\.(raw|mp3)$/, "")
+                        onClicked: Backend.play(modelData)
+                        ContextMenu.menu: Menu {
+                            Menu {
+                                title: qsTr("Add Tag")
+                                TextField {
+                                    id: tagField
+                                    placeholderText: "example: vine sound"
+                                }
+                            }
+
+                            MenuItem {
+                                text: qsTr("Remove")
+                                onTriggered: Backend.remove_sound(modelData)
                             }
                         }
-
-                        MenuItem {
-                            text: qsTr("Remove")
-                            onTriggered: Backend.remove_sound(modelData)
-                        }
                     }
-                }
 
+                }
             }
         }
     }
