@@ -271,6 +271,7 @@ void Backend::play(QString file_name){
 
     paTestData data = {0};
     data.stopRequested = false;
+    data.volume = this->m_volume;
     memcpy(data.file_name, play_target, MAX_FILE_NAME);
     unsigned numSamples;
     unsigned numBytes;
