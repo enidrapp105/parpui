@@ -12,7 +12,6 @@ Menu{
                 color: "#FFFFFF"
             }
             TextField{
-
                 color: "#FFFFFF"
                 implicitWidth: 42
                 function formatVolume() {

@@ -91,9 +91,6 @@ int main(int argc, char *argv[])
     Pa_OpenDefaultStream(&keepAliveStream, 0, 2, paFloat32, 44100, 512, nullptr, nullptr);
     Pa_StartStream(keepAliveStream);
 
-
-
-
     QGuiApplication app(argc, argv);
     qmlRegisterSingletonType<Backend>("PARPUI", 1, 0, "Backend",
         [](QQmlEngine*, QJSEngine*) -> QObject* {
