@@ -30,8 +30,6 @@ RowLayout {
             let val = parseFloat(text.replace("%", " "))
             if(!isNaN(val)) {
                 val = Math.max(root.minVolume * 100, Math.min(root.maxVolume * 100, val)) / 100
-                root.volume = val
-                slider.value = val
                 root.setter(val)
             }
             text = Qt.binding(formatVolume)
