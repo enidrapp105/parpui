@@ -14,19 +14,22 @@ RowLayout {
     Text {
         text: root.label
         color: "#FFFFFF"
+        //Layout.preferredWidth: 90
+        elide: Text.ElideRight
     }
     TextField {
+        id: textField
         color: "#FFFFFF"
         implicitWidth: 42
         function formatVolume() {
-            return (Backend.volume * 100).toFixed(0) + "%"
+            return (root.volume * 100).toFixed(0) + "%"
         }
         text: formatVolume()
 
         onEditingFinished: {
             let val = parseFloat(text.replace("%", " "))
             if(!isNaN(val)) {
-                val = Math.max(root.minVolume, Math.min(root.maxVolume * 100, val)) / 100
+                val = Math.max(root.minVolume * 100, Math.min(root.maxVolume * 100, val)) / 100
                 root.volume = val
                 slider.value = val
                 root.setter(val)
@@ -40,7 +43,9 @@ RowLayout {
         from: root.minVolume
         to: root.maxVolume
         stepSize: .01
-        onMoved: root.setter(val)
+        onMoved: root.setter(value)
         Layout.fillWidth: true
+        //Layout.preferredWidth: 150
+        //Layout.minimumWidth: 100
     }
 }
