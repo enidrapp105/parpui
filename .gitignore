@@ -20,6 +20,7 @@ sounds/
 core
 !core/
 tags
+*.db
 .DS_Store
 .directory
 *.debug

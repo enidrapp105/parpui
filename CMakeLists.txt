@@ -35,6 +35,7 @@ qt_add_qml_module(appPARPUI
         QML_FILES MenuSound.qml
         QML_FILES MenuFile.qml
         QML_FILES VolumeControl.qml
+        SOURCES sqldatabase.h sqldatabase.cpp
 )
 
 target_compile_definitions(appPARPUI PRIVATE
