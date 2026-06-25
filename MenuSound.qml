@@ -4,9 +4,11 @@ import QtQuick.Layouts
 
 Menu{
     title: qsTr("&Sound")
-    width: 250
+    width: 239
     MenuBarItem {
         width: 240
+        topPadding: 1
+        bottomPadding: 1
         contentItem: VolumeControl{
             id: volumeControl
             label: qsTr("Master Volume")
