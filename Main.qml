@@ -62,6 +62,7 @@ Window {
                                 width: 239
                                 topPadding: 1
                                 bottomPadding: 1
+                                enabled: false
                                 contentItem: VolumeControl {
                                     label: qsTr("Sound Volume")
                                 }
