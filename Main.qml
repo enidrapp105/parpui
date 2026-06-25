@@ -48,11 +48,22 @@ Window {
                         text: modelData.split("/").pop().replace(/\.(raw|mp3)$/, "")
                         onClicked: Backend.play(modelData)
                         ContextMenu.menu: Menu {
+                            width: 240
                             Menu {
                                 title: qsTr("Add Tag")
+                                padding: 1
+
                                 TextField {
                                     id: tagField
                                     placeholderText: "example: vine sound"
+                                }
+                            }
+                            MenuBarItem{
+                                width: 239
+                                topPadding: 1
+                                bottomPadding: 1
+                                contentItem: VolumeControl {
+                                    label: qsTr("Sound Volume")
                                 }
                             }
 
