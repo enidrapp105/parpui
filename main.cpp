@@ -16,6 +16,7 @@
 struct Sound {
     QString display_path;   // original .mp3 — what the UI shows and buttons reference
     QString playback_path;  // .raw in temp — populated after first play, empty until then
+    float gain = 1.0f;
     bool is_converted() const { return !playback_path.isEmpty(); }
 };
 
@@ -69,7 +70,7 @@ private:
         return nullptr;
     }
     float m_volume = 1.0f;
-    QList<Sound> m_sounds;
+    QMap<QString, Sound> m_sounds;
     QString m_virtual_mic_button_text;
     QString m_sounds_path;
     QMutex m_active_mutex;
@@ -134,7 +135,7 @@ void Backend::load_sounds(){
     QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
     m_sounds.clear();
     for(const QString &file : files){
-        m_sounds.append({m_sounds_path + "/" + file, ""});
+        m_sounds.insert(file, {m_sounds_path + "/" + file, ""});
     }
     emit soundsChanged();
 }
@@ -169,7 +170,7 @@ void Backend::remove_sound(QString file_path){
 
     QDir(m_sounds_path).remove(QFileInfo(file_path).fileName());
 
-    m_sounds.removeIf([&](const Sound &s){ return s.display_path == file_path; });
+    m_sounds.remove(QFileInfo(file_path).fileName());
     emit soundsChanged();
 }
 
@@ -185,6 +186,9 @@ static int valid_file(regex_t *regex, char* file_name){
     }
     return ret;
 }
+
+
+
 void Backend::stop_all(){
     qDebug() << "Stopping all";
     QMutexLocker lock(&m_active_mutex);
@@ -213,7 +217,7 @@ void Backend::add_sound(QString file_path){
     //dest_path = QString::fromLatin1(c_dest_path);
     QFile src(cleaned);
     if(src.copy(dest_path)){
-        m_sounds.append({dest_path, ""});
+        m_sounds.insert(file_name, {dest_path, ""});
         emit soundsChanged();
     } else {
         qDebug() << "Failed:" << src.errorString();
