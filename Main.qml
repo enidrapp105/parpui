@@ -65,6 +65,7 @@ Window {
                                 enabled: false
                                 contentItem: VolumeControl {
                                     label: qsTr("Sound Volume")
+                                    setter: function(u,v) { Backend.indiv_volume_setter(v, modelData)}
                                 }
                             }
 

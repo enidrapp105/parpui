@@ -26,6 +26,7 @@ class Backend : public QObject{
     Q_PROPERTY(QStringList sounds READ sounds NOTIFY soundsChanged)
     Q_PROPERTY(QString virtual_mic_button_text READ virtual_mic_button_text  NOTIFY virtualmicToggle)
     Q_PROPERTY(float volume READ volume WRITE volume_setter NOTIFY volumeChanged)
+    //Q_PROPERTY(float indivvolume READ indivvolume WRITE indiv_volume_setter NOTIFY indivvolumeChanged)
 
 public:
     Q_INVOKABLE void play(QString file_name);
@@ -42,6 +43,13 @@ public:
             emit volumeChanged();
         }
     }
+    Q_INVOKABLE void indiv_volume_setter(float volume, QString file_name){
+        Sound* sound = &m_sounds[file_name];
+        if(sound->gain != volume){
+            sound->gain = volume;
+            emit indivvolumeChanged();
+        }
+    }
     float volume() const {return m_volume; }
     QStringList sounds() const {
         QStringList result;
@@ -54,6 +62,7 @@ signals:
     void soundsChanged();
     void virtualmicToggle();
     void volumeChanged();
+    void indivvolumeChanged();
 
 private:
     void register_sound(paTestData* d) {
