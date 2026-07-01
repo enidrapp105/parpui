@@ -30,6 +30,7 @@ RowLayout {
             let val = parseFloat(text.replace("%", " "))
             if(!isNaN(val)) {
                 val = Math.max(root.minVolume * 100, Math.min(root.maxVolume * 100, val)) / 100
+                root.volume = val
                 root.setter(val)
             }
             text = Qt.binding(formatVolume)
@@ -41,9 +42,15 @@ RowLayout {
         from: root.minVolume
         to: root.maxVolume
         stepSize: .01
-        onMoved: root.setter(value)
+        Binding on value {
+            value: root.volume
+        }
+
+        onMoved: {
+            root.volume = value
+            root.setter(value)
+        }
         Layout.fillWidth: true
-        //Layout.preferredWidth: 150
-        //Layout.minimumWidth: 100
+
     }
 }

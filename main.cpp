@@ -43,12 +43,16 @@ public:
             emit volumeChanged();
         }
     }
-    Q_INVOKABLE void indiv_volume_setter(float volume, QString file_name){
-        Sound* sound = &m_sounds[file_name];
+    Q_INVOKABLE void indiv_volume_setter(float volume, QString file_path){
+        Sound* sound = find_sound(file_path);
         if(sound->gain != volume){
             sound->gain = volume;
             emit indivvolumeChanged();
         }
+    }
+    Q_INVOKABLE float sound_gain(QString file_path){
+        Sound* sound = find_sound(file_path);
+        return sound ? sound->gain : 1.0f;
     }
     float volume() const {return m_volume; }
     QStringList sounds() const {
@@ -278,10 +282,10 @@ void Backend::play(QString file_name){
 
     PaStreamParameters outputParameters;
     PaError err;
-
+    Sound *sound = find_sound(file_name);
     paTestData data = {0};
     data.stopRequested = false;
-    data.volume = this->m_volume * m_sounds[file_name].gain;
+    data.volume = this->m_volume * (sound ? sound->gain : 1.0f);
     memcpy(data.file_name, play_target, MAX_FILE_NAME);
     unsigned numSamples;
     unsigned numBytes;

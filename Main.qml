@@ -62,10 +62,11 @@ Window {
                                 width: 239
                                 topPadding: 1
                                 bottomPadding: 1
-                                enabled: false
+                                enabled: true
                                 contentItem: VolumeControl {
                                     label: qsTr("Sound Volume")
-                                    setter: function(u,v) { Backend.indiv_volume_setter(v, modelData)}
+                                    volume: Backend.sound_gain(modelData)
+                                    setter: function(v) { Backend.indiv_volume_setter(v, modelData)}
                                 }
                             }
 
