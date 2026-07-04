@@ -69,6 +69,10 @@ Window {
                                     setter: function(v) { Backend.indiv_volume_setter(v, modelData)}
                                 }
                             }
+                            MenuItem {
+                                text: qsTr("Button Color")
+                                onTriggered: colorDialog.open()
+                            }
 
                             MenuItem {
                                 text: qsTr("Remove")
@@ -102,6 +106,9 @@ Window {
             }
 
         }
+    }
+    ColorDialog {
+        id: colorDialog
     }
 
     FileDialog {
