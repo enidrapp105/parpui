@@ -109,6 +109,9 @@ Window {
     }
     ColorDialog {
         id: colorDialog
+        onAccepted: {
+
+        }
     }
 
     FileDialog {

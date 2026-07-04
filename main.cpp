@@ -9,6 +9,7 @@
 #include <QUrl>
 #include <QProcess>
 #include <QDesktopServices>
+#include <QColor>
 #include <string.h>
 #include <regex.h>
 #include "parp.h"
@@ -16,6 +17,7 @@
 struct Sound {
     QString display_path;   // original .mp3 — what the UI shows and buttons reference
     QString playback_path;  // .raw in temp — populated after first play, empty until then
+    QColor button_color;
     float gain = 1.0f;
     bool is_converted() const { return !playback_path.isEmpty(); }
 };
@@ -25,7 +27,7 @@ class Backend : public QObject{
     Q_OBJECT
     Q_PROPERTY(QStringList sounds READ sounds NOTIFY soundsChanged)
     Q_PROPERTY(QString virtual_mic_button_text READ virtual_mic_button_text  NOTIFY virtualmicToggle)
-    Q_PROPERTY(float volume READ volume WRITE volume_setter NOTIFY volumeChanged)
+    //Q_PROPERTY(float volume READ volume WRITE volume_setter NOTIFY volumeChanged)
     //Q_PROPERTY(float indivvolume READ indivvolume WRITE indiv_volume_setter NOTIFY indivvolumeChanged)
 
 public:
@@ -40,14 +42,18 @@ public:
     Q_INVOKABLE void volume_setter(float volume){
         if(m_volume != volume){
             m_volume = volume;
-            emit volumeChanged();
         }
     }
     Q_INVOKABLE void indiv_volume_setter(float volume, QString file_path){
         Sound* sound = find_sound(file_path);
         if(sound->gain != volume){
             sound->gain = volume;
-            emit indivvolumeChanged();
+        }
+    }
+    Q_INVOKABLE void color_setter(QColor color, QString file_path){
+        Sound* sound = find_sound(file_path);
+        if(sound->button_color != color){
+            sound->button_color = color;
         }
     }
     Q_INVOKABLE float sound_gain(QString file_path){
@@ -65,8 +71,6 @@ public:
 signals:
     void soundsChanged();
     void virtualmicToggle();
-    void volumeChanged();
-    void indivvolumeChanged();
 
 private:
     void register_sound(paTestData* d) {
