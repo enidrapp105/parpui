@@ -13,14 +13,9 @@
 #include <string.h>
 #include <regex.h>
 #include "parp.h"
+#include "parpui.h"
 
-struct Sound {
-    QString display_path;   // original .mp3 — what the UI shows and buttons reference
-    QString playback_path;  // .raw in temp — populated after first play, empty until then
-    QColor button_color;
-    float gain = 1.0f;
-    bool is_converted() const { return !playback_path.isEmpty(); }
-};
+
 
 
 class Backend : public QObject{
@@ -123,7 +118,7 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.loadFromModule("PARPUI", "Main");
     Backend* backend = engine.singletonInstance<Backend*>("PARPUI", "Backend");
-    if(backend){
+    if (backend) {
         backend->load_sounds();
         backend->load_unload_devices();
     }
