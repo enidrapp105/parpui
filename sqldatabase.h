@@ -1,6 +1,7 @@
 #ifndef SQLDATABASE_H
 #define SQLDATABASE_H
 #include <QMap>
+#include <sqlite3.h>
 #include "parpui.h"
 
 class SQLDatabase

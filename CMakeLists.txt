@@ -17,6 +17,9 @@ message(STATUS "parp source dir: ${parp_SOURCE_DIR}")
 
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package (SQLite3 REQUIRED)
+
+
 
 qt_standard_project_setup(REQUIRES 6.10)
 
@@ -38,6 +41,8 @@ qt_add_qml_module(appPARPUI
         SOURCES sqldatabase.h sqldatabase.cpp
         SOURCES parpui.h
 )
+
+target_include_directories(appPARPUI PRIVATE ${SQLite3_INCLUDE_DIR})
 
 target_compile_definitions(appPARPUI PRIVATE
     USE_CMAKE
@@ -62,6 +67,7 @@ target_link_libraries(appPARPUI
         Qt6::Concurrent
         Qt6::Quick
         parp
+        ${SQLite3_LIBRARIES}
 )
 
 install(TARGETS appPARPUI

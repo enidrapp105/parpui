@@ -9,4 +9,8 @@ This is a soundboard designed for ubuntu/debian desktops
     <img src="https://raw.githubusercontent.com/enidrapp105/parpui/main/assets/readme_screenshot.png">
 </h1>
 
+## Install dependencies
+The dependencies from [parp](https://github.com/enidrapp105/parp) are also required
+        sudo apt install libsqlite3-dev
+
 
