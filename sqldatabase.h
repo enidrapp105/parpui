@@ -8,6 +8,7 @@ class SQLDatabase
 {
 public:
     SQLDatabase();
+    void Database_create();
     void Database_write(Sound* sound);
     QMap<QString, Sound> Database_read();
 };
