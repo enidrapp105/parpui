@@ -12,6 +12,6 @@ This is a soundboard designed for ubuntu/debian desktops
 ## Install dependencies
 The dependencies from [parp](https://github.com/enidrapp105/parp) are also required
 
-        sudo apt install libsqlite3-dev
+    sudo apt install libsqlite3-dev
 
 
