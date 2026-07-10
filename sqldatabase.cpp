@@ -1,6 +1,10 @@
 #include "sqldatabase.h"
-SQLDatabase::SQLDatabase() {
 
+void testdb(){
+
+}
+SQLDatabase::SQLDatabase() {
+    sqlite3_open();
 }
 
 void SQLDatabase::Database_create() {
