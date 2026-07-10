@@ -14,6 +14,7 @@
 #include <regex.h>
 #include "parp.h"
 #include "parpui.h"
+#include "sqldatabase.h"
 
 
 
@@ -98,6 +99,10 @@ int main(int argc, char *argv[])
 {
     PaError err;
     QProcess process;
+    QString dbpath = (QCoreApplication::applicationDirPath()+ "/sounds.db");
+    if(!QFile::exists(dbpath))
+        SQLDatabase();
+
     err = Pa_Initialize();
     checkErr(err);
     PaStream* keepAliveStream;
@@ -126,10 +131,10 @@ int main(int argc, char *argv[])
 
     int result = QCoreApplication::exec();
 
-    QDir dir(QCoreApplication::applicationDirPath() + "/sounds/temp/");
-    QStringList files = dir.entryList(QStringList() << "*.raw", QDir::Files);
+    QDir tempdir(QCoreApplication::applicationDirPath() + "/sounds/temp/");
+    QStringList files = tempdir.entryList(QStringList() << "*.raw", QDir::Files);
     for (const QString &file : files) {
-        dir.remove(file);
+        tempdir.remove(file);
     }
     err = Pa_Terminate();
     checkErr(err);
