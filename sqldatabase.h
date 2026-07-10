@@ -3,6 +3,7 @@
 #include <QMap>
 #include <sqlite3.h>
 #include "parpui.h"
+#include "string.h"
 
 class SQLDatabase
 {
