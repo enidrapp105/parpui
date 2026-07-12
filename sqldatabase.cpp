@@ -6,11 +6,13 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     printf("\n");
+    fprintf(stderr, "IN CALLBACK argc=%d\n", argc);
+    fflush(stderr);
     return 0;
 }
 
 int rundb(char* dbname, char *query) {
-  sqlite3 *db;
+    sqlite3 *db;
     char *zErrMsg = 0;
     int rc;
   
@@ -30,21 +32,24 @@ int rundb(char* dbname, char *query) {
 }
 
 SQLDatabase::SQLDatabase() {
-    char query[] = "CREATE TABLE SoundInfo ("
-                    "Color	TEXT,"
-                    "Volume	REAL,"
-                    "SoundId INTEGER,"
-                    "PRIMARY KEY(SoundId)"
-                    ");";
-    rundb("sounds.db", query);
+
 }
 
 void SQLDatabase::Database_create() {
-
+    char query[] = "CREATE TABLE SoundInfo ("
+                   "Color	TEXT,"
+                   "Name    TEXT,"
+                   "Volume	REAL,"
+                   "SoundId INTEGER UNIQUE,"
+                   "PRIMARY KEY(SoundId AUTOINCREMENT)"
+                   ");";
+    rundb("sounds.db", query);
 }
 
 QMap<QString, Sound> SQLDatabase::Database_read() {
     QMap<QString, Sound> database;
+    char query[] = "SELECT * FROM SoundInfo;";
+    rundb("sounds.db", query);
     return database;
 }
 

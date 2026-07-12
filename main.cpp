@@ -99,9 +99,8 @@ int main(int argc, char *argv[])
 {
     PaError err;
     QProcess process;
-    QString dbpath = (QCoreApplication::applicationDirPath()+ "/sounds.db");
-    if(!QFile::exists(dbpath))
-        SQLDatabase();
+    SQLDatabase db;
+
 
     err = Pa_Initialize();
     checkErr(err);
@@ -122,6 +121,11 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
     engine.loadFromModule("PARPUI", "Main");
+    QString dbpath = (QCoreApplication::applicationDirPath() + "/sounds.db");
+    if(!QFile::exists(dbpath)){
+
+        db.Database_create();
+    }
     Backend* backend = engine.singletonInstance<Backend*>("PARPUI", "Backend");
     if (backend) {
         backend->load_sounds();
@@ -136,6 +140,7 @@ int main(int argc, char *argv[])
     for (const QString &file : files) {
         tempdir.remove(file);
     }
+
     err = Pa_Terminate();
     checkErr(err);
     return result;
@@ -143,6 +148,8 @@ int main(int argc, char *argv[])
 
 void Backend::load_sounds(){
     m_sounds_path = QCoreApplication::applicationDirPath() + "/sounds";
+    SQLDatabase db;
+    db.Database_read();
     QDir dir(m_sounds_path);
     if(!dir.exists()){
         QDir appdir(QCoreApplication::applicationDirPath());
