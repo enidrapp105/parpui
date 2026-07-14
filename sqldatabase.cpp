@@ -1,6 +1,6 @@
 #include "sqldatabase.h"
 
-static int create_callback(void *NotUsed, int argc, char **argv, char **azColName){
+static int create_callback(void *NotUsed, int argc, char **argv, char **azColName) {
     int i;
     for(i=0; i<argc; i++){
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
@@ -11,7 +11,13 @@ static int create_callback(void *NotUsed, int argc, char **argv, char **azColNam
     return 0;
 }
 
-int rundb(char* dbname, char *query, int (*callbackfunc)(void*, int, char **, char**)) {
+static int read_callback(void *data, int argc, char **argv, char **azColName) {
+    QMap<QString, Sound> *database = static_cast<QMap<QString, Sound>*>(data);
+    fprintf(stderr, "*****************************READ CALLBACK***************************\n");
+    return 0;
+}
+
+int rundb(char* dbname, char *query, void* userdata, int (*callbackfunc)(void*, int, char **, char**)) {
     sqlite3 *db;
     char *zErrMsg = 0;
     int rc;
@@ -22,7 +28,7 @@ int rundb(char* dbname, char *query, int (*callbackfunc)(void*, int, char **, ch
       sqlite3_close(db);
       return(1);
     }
-    rc = sqlite3_exec(db, query, callbackfunc, 0, &zErrMsg);
+    rc = sqlite3_exec(db, query, callbackfunc, userdata, &zErrMsg);
     if( rc!=SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
@@ -43,13 +49,13 @@ void SQLDatabase::Database_create() {
                    "SoundId INTEGER UNIQUE,"
                    "PRIMARY KEY(SoundId AUTOINCREMENT)"
                    ");";
-    rundb("sounds.db", query, create_callback);
+    rundb("sounds.db", query, NULL, create_callback);
 }
 
 QMap<QString, Sound> SQLDatabase::Database_read() {
     QMap<QString, Sound> database;
     char query[] = "SELECT * FROM SoundInfo;";
-    rundb("sounds.db", query);
+    rundb("sounds.db", query, &database, read_callback);
     return database;
 }
 
