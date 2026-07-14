@@ -11,7 +11,7 @@ static int create_callback(void *NotUsed, int argc, char **argv, char **azColNam
     return 0;
 }
 
-int rundb(char* dbname, char *query, int (*func)(void*, int, char **, char**)) {
+int rundb(char* dbname, char *query, int (*callbackfunc)(void*, int, char **, char**)) {
     sqlite3 *db;
     char *zErrMsg = 0;
     int rc;
@@ -22,7 +22,7 @@ int rundb(char* dbname, char *query, int (*func)(void*, int, char **, char**)) {
       sqlite3_close(db);
       return(1);
     }
-    rc = sqlite3_exec(db, query, func, 0, &zErrMsg);
+    rc = sqlite3_exec(db, query, callbackfunc, 0, &zErrMsg);
     if( rc!=SQLITE_OK ){
       fprintf(stderr, "SQL error: %s\n", zErrMsg);
       sqlite3_free(zErrMsg);
