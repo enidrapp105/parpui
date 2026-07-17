@@ -1,19 +1,12 @@
 #include "sqldatabase.h"
 
-static int create_callback(void *NotUsed, int argc, char **argv, char **azColName) {
-    int i;
-    for(i=0; i<argc; i++){
-        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
-    }
-    printf("\n");
-    fprintf(stderr, "IN CALLBACK argc=%d\n", argc);
-    fflush(stderr);
-    return 0;
-}
 
 static int read_callback(void *data, int argc, char **argv, char **azColName) {
     QMap<QString, Sound> *database = static_cast<QMap<QString, Sound>*>(data);
-    fprintf(stderr, "*****************************READ CALLBACK***************************\n");
+    for (int i = 0; i < argc; i++) {
+        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+    }
+    printf("END\n");
     return 0;
 }
 
@@ -49,7 +42,7 @@ void SQLDatabase::Database_create() {
                    "SoundId INTEGER UNIQUE,"
                    "PRIMARY KEY(SoundId AUTOINCREMENT)"
                    ");";
-    rundb("sounds.db", query, NULL, create_callback);
+    rundb("sounds.db", query, NULL, NULL);
 }
 
 QMap<QString, Sound> SQLDatabase::Database_read() {
