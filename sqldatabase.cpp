@@ -1,4 +1,7 @@
 #include "sqldatabase.h"
+#include <QDir>
+#include <QDebug>
+#include <QStandardPaths>
 
 
 static int read_callback(void *data, int argc, char **argv, char **azColName) {
@@ -14,8 +17,9 @@ int rundb(char* dbname, char *query, void* userdata, int (*callbackfunc)(void*, 
     sqlite3 *db;
     char *zErrMsg = 0;
     int rc;
-  
     rc = sqlite3_open(dbname, &db);
+    qDebug() << "Opening db, rc=" << rc;
+    qDebug() << "CWD:" << QDir::currentPath();
     if( rc ){
       fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
       sqlite3_close(db);
@@ -42,13 +46,18 @@ void SQLDatabase::Database_create() {
                    "SoundId INTEGER UNIQUE,"
                    "PRIMARY KEY(SoundId AUTOINCREMENT)"
                    ");";
-    rundb("sounds.db", query, NULL, NULL);
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    rundb(dbPath.toUtf8().data(), query, NULL, NULL);
 }
 
 QMap<QString, Sound> SQLDatabase::Database_read() {
     QMap<QString, Sound> database;
     char query[] = "SELECT * FROM SoundInfo;";
-    rundb("sounds.db", query, &database, read_callback);
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    qDebug() << "Using db path:" << dbPath;
+    rundb(dbPath.toUtf8().data(), query, &database, read_callback);
     return database;
 }
 
