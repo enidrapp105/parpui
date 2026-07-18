@@ -6,8 +6,16 @@
 
 static int read_callback(void *data, int argc, char **argv, char **azColName) {
     QMap<QString, Sound> *database = static_cast<QMap<QString, Sound>*>(data);
+    Sound entry;
     for (int i = 0; i < argc; i++) {
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        if(strcmp(azColName[i], "Color")) {
+            entry.button_color = QColor(argv[i]);
+        } else if(strcmp(azColName[i], "Name")) {
+
+        } else if(strcmp(azColName[i], "Volume")) {
+
+        }
     }
     printf("END\n");
     return 0;
