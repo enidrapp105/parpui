@@ -3,6 +3,7 @@
 #include <QColor>
 #include <QObject>
 struct Sound {
+    //QString sound_name;
     QString display_path;   // original .mp3 — what the UI shows and buttons reference
     QString playback_path;  // .raw in temp — populated after first play, empty until then
     QColor button_color;

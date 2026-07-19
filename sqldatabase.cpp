@@ -12,11 +12,13 @@ static int read_callback(void *data, int argc, char **argv, char **azColName) {
         if(strcmp(azColName[i], "Color")) {
             entry.button_color = QColor(argv[i]);
         } else if(strcmp(azColName[i], "Name")) {
-
+            //entry.sound_name = argv[i];
         } else if(strcmp(azColName[i], "Volume")) {
-
+            char *endptr;
+            entry.gain = strtof(argv[i], &endptr);
         }
     }
+    //database->insert()
     printf("END\n");
     return 0;
 }
@@ -50,6 +52,7 @@ void SQLDatabase::Database_create() {
     char query[] = "CREATE TABLE SoundInfo ("
                    "Color	TEXT,"
                    "Name    TEXT,"
+                   "Path    TEXT,"
                    "Volume	REAL,"
                    "SoundId INTEGER UNIQUE,"
                    "PRIMARY KEY(SoundId AUTOINCREMENT)"
