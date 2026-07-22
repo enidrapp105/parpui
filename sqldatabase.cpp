@@ -3,6 +3,9 @@
 #include <QDebug>
 #include <QStandardPaths>
 
+static int create_callback(void *data, int argc, char **argv, char **azColName) {
+    return 0;
+}
 
 static int read_callback(void *data, int argc, char **argv, char **azColName) {
     QMap<QString, Sound> *database = static_cast<QMap<QString, Sound>*>(data);
@@ -61,7 +64,7 @@ void SQLDatabase::Database_create() {
                    ");";
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
     QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
-    rundb(dbPath.toUtf8().data(), query, NULL, NULL);
+    rundb(dbPath.toUtf8().data(), query, NULL, create_callback);
 }
 
 QMap<QString, Sound> SQLDatabase::Database_read() {

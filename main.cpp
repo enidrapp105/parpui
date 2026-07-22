@@ -125,6 +125,7 @@ int main(int argc, char *argv[])
     if(!QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))) {
         db.Database_create();
     }
+
     Backend* backend = engine.singletonInstance<Backend*>("PARPUI", "Backend");
     if (backend) {
         backend->load_sounds();
