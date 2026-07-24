@@ -121,8 +121,10 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
     engine.loadFromModule("PARPUI", "Main");
-    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
-    if(!QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation))) {
+    QString appDataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString dbPath = appDataPath + "/sounds.db";
+    QDir().mkpath(appDataPath);
+    if (!QFile::exists(dbPath)){
         db.Database_create();
     }
 
