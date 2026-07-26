@@ -78,6 +78,10 @@ QMap<QString, Sound> SQLDatabase::Database_read() {
 }
 
 void SQLDatabase::Database_write(Sound* sound) {
+    //INSERT INTO SoundInfo (Color, Name, Path, Volume)
+    //VALUES ('red', 'counting-or-not-counting-gang-violence.mp3', '/home/enid/Working/PARPUI/build/Desktop_Qt_6_11_0-Debug/sounds/counting-or-not-counting-gang-violence.mp3', '1.7')
+    char query[] = "INSERT INTO SoundInfo (Color, Name, Path, Volume)"
+                    "(? ? ? ?)";
 
 }
 
