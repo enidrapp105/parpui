@@ -81,8 +81,13 @@ void SQLDatabase::Database_write(Sound* sound) {
     //INSERT INTO SoundInfo (Color, Name, Path, Volume)
     //VALUES ('red', 'counting-or-not-counting-gang-violence.mp3', '/home/enid/Working/PARPUI/build/Desktop_Qt_6_11_0-Debug/sounds/counting-or-not-counting-gang-violence.mp3', '1.7')
     sqlite3 *db;
+    sqlite3_stmt *stmt;
+    int rc;
     char query[] = "INSERT INTO SoundInfo (Color, Name, Path, Volume)"
                     "VALUES (? ? ? ?)";
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+
 
 }
 
