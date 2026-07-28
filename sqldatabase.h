@@ -3,14 +3,13 @@
 #include <QMap>
 #include <sqlite3.h>
 #include "parpui.h"
-#include "string.h"
 
 class SQLDatabase
 {
 public:
     SQLDatabase();
     void Database_create();
-    void Database_write(Sound* sound);
+    int Database_write(Sound* sound);
     QMap<QString, Sound> Database_read();
 };
 

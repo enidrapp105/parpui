@@ -77,7 +77,7 @@ QMap<QString, Sound> SQLDatabase::Database_read() {
     return database;
 }
 
-void SQLDatabase::Database_write(Sound* sound) {
+int SQLDatabase::Database_write(Sound* sound) {
     //INSERT INTO SoundInfo (Color, Name, Path, Volume)
     //VALUES ('red', 'counting-or-not-counting-gang-violence.mp3', '/home/enid/Working/PARPUI/build/Desktop_Qt_6_11_0-Debug/sounds/counting-or-not-counting-gang-violence.mp3', '1.7')
     sqlite3 *db;
@@ -87,7 +87,30 @@ void SQLDatabase::Database_write(Sound* sound) {
                     "VALUES (? ? ? ?)";
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
     QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    rc = sqlite3_open(dbPath.toUtf8().data(), &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        return 1;
+    }
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Prepare failed: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+    sqlite3_bind_text(stmt, 1, sound->button_color.name().toUtf8().data(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, sound->sound_name.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, sound->display_path.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_double(stmt, 1, sound->gain);
 
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
+    }
 
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return 0;
 }
 
