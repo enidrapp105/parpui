@@ -101,7 +101,7 @@ int SQLDatabase::Database_write(Sound* sound) {
     sqlite3_bind_text(stmt, 1, sound->button_color.name().toUtf8().data(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, sound->sound_name.toUtf8().data(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 3, sound->display_path.toUtf8().data(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_double(stmt, 1, sound->gain);
+    sqlite3_bind_double(stmt, 4, sound->gain);
 
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {
