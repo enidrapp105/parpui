@@ -161,7 +161,12 @@ void Backend::load_sounds(){
     QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
     m_sounds.clear();
     for(const QString &file : files){
-        m_sounds.insert(file, {m_sounds_path + "/" + file, ""});
+
+        Sound sound = {
+            .display_path = m_sounds_path + "/" + file
+        };
+        m_sounds.insert(file, sound);
+        //db.Database_write(&sound);
     }
     emit soundsChanged();
 }
@@ -243,7 +248,10 @@ void Backend::add_sound(QString file_path){
     //dest_path = QString::fromLatin1(c_dest_path);
     QFile src(cleaned);
     if(src.copy(dest_path)){
-        m_sounds.insert(file_name, {dest_path, ""});
+        Sound sound = {
+            .display_path = dest_path
+        };
+        m_sounds.insert(file_name, sound);
         emit soundsChanged();
     } else {
         qDebug() << "Failed:" << src.errorString();
@@ -255,7 +263,7 @@ void Backend::add_sound(QString file_path){
 void Backend::play(QString file_name){
     QtConcurrent::run([=](){
     char play_target[MAX_FILE_NAME] = {0};
-
+    SQLDatabase *db;
     QByteArray ba = file_name.toLocal8Bit();
     char* c_file_name = ba.data();
     regex_t rawregex, mp3regex;
@@ -333,6 +341,7 @@ void Backend::play(QString file_name){
     if (data.ringBufferData)
         PaUtil_FreeMemory(data.ringBufferData);
     printf("\n");
+    db->Database_write(sound);
     });
 }
 #include "main.moc"
