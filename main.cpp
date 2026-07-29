@@ -163,7 +163,8 @@ void Backend::load_sounds(){
     for(const QString &file : files){
 
         Sound sound = {
-            .display_path = m_sounds_path + "/" + file
+            .display_path = m_sounds_path + "/" + file,
+            .sound_name = file
         };
         m_sounds.insert(file, sound);
         //db.Database_write(&sound);
@@ -235,6 +236,7 @@ void Backend::add_sound(QString file_path){
     QString cleaned = QUrl(file_path).toLocalFile();
     QString file_name = QFileInfo(cleaned).fileName();
     QString dest_path = m_sounds_path + "/" + file_name;
+    SQLDatabase *db;
 
     qDebug() << "Source:" << cleaned;
     qDebug() << "Destination:" << dest_path;
@@ -249,9 +251,11 @@ void Backend::add_sound(QString file_path){
     QFile src(cleaned);
     if(src.copy(dest_path)){
         Sound sound = {
-            .display_path = dest_path
+            .display_path = dest_path,
+            .sound_name = file_name
         };
         m_sounds.insert(file_name, sound);
+        db->Database_write(&sound);
         emit soundsChanged();
     } else {
         qDebug() << "Failed:" << src.errorString();
@@ -341,7 +345,7 @@ void Backend::play(QString file_name){
     if (data.ringBufferData)
         PaUtil_FreeMemory(data.ringBufferData);
     printf("\n");
-    db->Database_write(sound);
+    //db->Database_write(sound);
     });
 }
 #include "main.moc"
