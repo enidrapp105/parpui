@@ -6,8 +6,9 @@ struct Sound {
     QString display_path;   // original .mp3 — what the UI shows and buttons reference
     QString playback_path;  // .raw in temp — populated after first play, empty until then
     QString sound_name;
-    QColor button_color;
+    QColor button_color = "#000000";
     float gain = 1.0f;
+    int sound_id;
     bool is_converted() const { return !playback_path.isEmpty(); }
 };
 #endif // PARPUI_H
