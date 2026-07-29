@@ -21,6 +21,8 @@ static int read_callback(void *data, int argc, char **argv, char **azColName) {
             entry.gain = strtof(argv[i], &endptr);
         } else if(strcmp(azColName[i], "Path")) {
             entry.display_path = argv[i];
+        } else if(strcmp(azColName[i], "SoundId")) {
+            entry.sound_id = atoi(argv[i]);
         }
     }
     database->insert(entry.display_path, entry);
@@ -84,7 +86,7 @@ int SQLDatabase::Database_write(Sound* sound) {
     sqlite3_stmt *stmt;
     int rc;
     char query[] = "INSERT INTO SoundInfo (Color, Name, Path, Volume)"
-                    "VALUES (? ? ? ?)";
+                    "VALUES (?, ?, ?, ?)";
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
     QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     rc = sqlite3_open(dbPath.toUtf8().data(), &db);
@@ -113,4 +115,6 @@ int SQLDatabase::Database_write(Sound* sound) {
 
     return 0;
 }
-
+int SQLDatabase::Database_update(Sound* sounds) {
+    return 0;
+}
