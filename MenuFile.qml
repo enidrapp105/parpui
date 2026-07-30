@@ -1,3 +1,8 @@
+/***********************************
+ * Project: PARPUI
+ * File:    MenuFile.qml
+ * Author:  Enid Rapp
+ */
 import QtQuick
 import QtQuick.Controls
 

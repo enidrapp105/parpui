@@ -40,6 +40,7 @@ qt_add_qml_module(appPARPUI
         QML_FILES VolumeControl.qml
         SOURCES sqldatabase.h sqldatabase.cpp
         SOURCES parpui.h
+        SOURCES backend.h backend.cpp
 )
 
 target_include_directories(appPARPUI PRIVATE ${SQLite3_INCLUDE_DIR})

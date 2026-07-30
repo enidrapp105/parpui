@@ -1,3 +1,8 @@
+/***********************************
+ * Project: PARPUI
+ * File:    sqldatabase.cpp
+ * Author:  Enid Rapp
+ */
 #include "sqldatabase.h"
 #include <QDir>
 #include <QDebug>

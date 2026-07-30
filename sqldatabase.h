@@ -1,3 +1,8 @@
+/***********************************
+ * Project: PARPUI
+ * File:    sqldatabase.h
+ * Author:  Enid Rapp
+ */
 #ifndef SQLDATABASE_H
 #define SQLDATABASE_H
 #include <QMap>

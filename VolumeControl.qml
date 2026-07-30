@@ -1,3 +1,8 @@
+/***********************************
+ * Project: PARPUI
+ * File:    VolumeControl.qml
+ * Author:  Enid Rapp
+ */
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

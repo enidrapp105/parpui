@@ -1,3 +1,8 @@
+/***********************************
+ * Project: PARPUI
+ * File:    parpui.h
+ * Author:  Enid Rapp
+ */
 #ifndef PARPUI_H
 #define PARPUI_H
 #include <QColor>
