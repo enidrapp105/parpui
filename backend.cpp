@@ -5,64 +5,6 @@
  */
 #include "backend.h"
 
-void Backend::load_sounds(){
-    m_sounds_path = QCoreApplication::applicationDirPath() + "/sounds";
-    SQLDatabase db;
-    db.Database_read();
-    QDir dir(m_sounds_path);
-    if(!dir.exists()){
-        QDir appdir(QCoreApplication::applicationDirPath());
-        appdir.mkdir("sounds", std::nullopt);
-        appdir.mkdir("sounds/temp", std::nullopt);
-    }
-    QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
-    m_sounds.clear();
-    for(const QString &file : files){
-
-        Sound sound = {
-            .display_path = m_sounds_path + "/" + file,
-            .sound_name = file
-        };
-        m_sounds.insert(file, sound);
-        //db.Database_write(&sound);
-    }
-    emit soundsChanged();
-}
-
-void Backend::load_unload_devices(){
-    QtConcurrent::run([=](){
-        QProcess process;
-        if(m_initial_startup){
-            process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
-            m_virtual_mic_button_text = "Load Virtual Mic";
-            m_virtual_mic_loaded = false;
-            m_initial_startup = false;
-            emit virtualmicToggle();
-        }else if(!m_virtual_mic_loaded){
-            process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/loaddevices");
-            m_virtual_mic_button_text = "Unload Virtual Mic";
-            m_virtual_mic_loaded = true;
-        }else{
-            process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
-            m_virtual_mic_button_text = "Load Virtual Mic";
-            m_virtual_mic_loaded = false;
-        }
-        process.waitForFinished();
-        emit virtualmicToggle();
-        qDebug() << process.readAllStandardOutput();
-    });
-}
-
-void Backend::remove_sound(QString file_path){
-    Sound *s = find_sound(file_path);
-    if(!s) return;
-
-    QDir(m_sounds_path).remove(QFileInfo(file_path).fileName());
-
-    m_sounds.remove(QFileInfo(file_path).fileName());
-    emit soundsChanged();
-}
-
 static int valid_file(regex_t *regex, char* file_name){
     int ret;
     ret = regexec(regex, file_name, 0, NULL, 0);
@@ -75,51 +17,6 @@ static int valid_file(regex_t *regex, char* file_name){
     }
     return ret;
 }
-
-void Backend::stop_all(){
-    qDebug() << "Stopping all";
-    QMutexLocker lock(&m_active_mutex);
-    qDebug() << "Acquired stop lock";
-    for (paTestData *d : m_active_sounds){
-        d->stopRequested = true;
-    }
-}
-
-void Backend::open_sounds_folder(){
-    QDesktopServices::openUrl(QUrl(m_sounds_path));
-}
-
-void Backend::add_sound(QString file_path){
-    QString cleaned = QUrl(file_path).toLocalFile();
-    QString file_name = QFileInfo(cleaned).fileName();
-    QString dest_path = m_sounds_path + "/" + file_name;
-    SQLDatabase *db;
-
-    qDebug() << "Source:" << cleaned;
-    qDebug() << "Destination:" << dest_path;
-    qDebug() << "Source exists:" << QFile::exists(cleaned);
-    qDebug() << "Sounds dir exists:" << QDir(m_sounds_path).exists();
-    if(QFile::exists(dest_path)){
-        qDebug() << "File already exists at destination";
-        QFile::remove(dest_path);
-    }
-
-    //dest_path = QString::fromLatin1(c_dest_path);
-    QFile src(cleaned);
-    if(src.copy(dest_path)){
-        Sound sound = {
-            .display_path = dest_path,
-            .sound_name = file_name
-        };
-        m_sounds.insert(file_name, sound);
-        db->Database_write(&sound);
-        emit soundsChanged();
-    } else {
-        qDebug() << "Failed:" << src.errorString();
-    }
-
-}
-
 
 void Backend::play(QString file_name){
     QtConcurrent::run([=](){
@@ -205,3 +102,106 @@ void Backend::play(QString file_name){
         //db->Database_write(sound);
     });
 }
+
+void Backend::load_sounds(){
+    m_sounds_path = QCoreApplication::applicationDirPath() + "/sounds";
+    SQLDatabase db;
+    db.Database_read();
+    QDir dir(m_sounds_path);
+    if(!dir.exists()){
+        QDir appdir(QCoreApplication::applicationDirPath());
+        appdir.mkdir("sounds", std::nullopt);
+        appdir.mkdir("sounds/temp", std::nullopt);
+    }
+    QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
+    m_sounds.clear();
+    for(const QString &file : files){
+
+        Sound sound = {
+            .display_path = m_sounds_path + "/" + file,
+            .sound_name = file
+        };
+        m_sounds.insert(file, sound);
+        //db.Database_write(&sound);
+    }
+    emit soundsChanged();
+}
+
+void Backend::add_sound(QString file_path){
+    QString cleaned = QUrl(file_path).toLocalFile();
+    QString file_name = QFileInfo(cleaned).fileName();
+    QString dest_path = m_sounds_path + "/" + file_name;
+    SQLDatabase *db;
+
+    qDebug() << "Source:" << cleaned;
+    qDebug() << "Destination:" << dest_path;
+    qDebug() << "Source exists:" << QFile::exists(cleaned);
+    qDebug() << "Sounds dir exists:" << QDir(m_sounds_path).exists();
+    if(QFile::exists(dest_path)){
+        qDebug() << "File already exists at destination";
+        QFile::remove(dest_path);
+    }
+
+    //dest_path = QString::fromLatin1(c_dest_path);
+    QFile src(cleaned);
+    if(src.copy(dest_path)){
+        Sound sound = {
+            .display_path = dest_path,
+            .sound_name = file_name
+        };
+        m_sounds.insert(file_name, sound);
+        db->Database_write(&sound);
+        emit soundsChanged();
+    } else {
+        qDebug() << "Failed:" << src.errorString();
+    }
+
+}
+
+void Backend::load_unload_devices(){
+    QtConcurrent::run([=](){
+        QProcess process;
+        if(m_initial_startup){
+            process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
+            m_virtual_mic_button_text = "Load Virtual Mic";
+            m_virtual_mic_loaded = false;
+            m_initial_startup = false;
+            emit virtualmicToggle();
+        }else if(!m_virtual_mic_loaded){
+            process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/loaddevices");
+            m_virtual_mic_button_text = "Unload Virtual Mic";
+            m_virtual_mic_loaded = true;
+        }else{
+            process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
+            m_virtual_mic_button_text = "Load Virtual Mic";
+            m_virtual_mic_loaded = false;
+        }
+        process.waitForFinished();
+        emit virtualmicToggle();
+        qDebug() << process.readAllStandardOutput();
+    });
+}
+
+void Backend::remove_sound(QString file_path){
+    Sound *s = find_sound(file_path);
+    if(!s) return;
+
+    QDir(m_sounds_path).remove(QFileInfo(file_path).fileName());
+
+    m_sounds.remove(QFileInfo(file_path).fileName());
+    emit soundsChanged();
+}
+
+void Backend::stop_all(){
+    qDebug() << "Stopping all";
+    QMutexLocker lock(&m_active_mutex);
+    qDebug() << "Acquired stop lock";
+    for (paTestData *d : m_active_sounds){
+        d->stopRequested = true;
+    }
+}
+
+void Backend::open_sounds_folder(){
+    QDesktopServices::openUrl(QUrl(m_sounds_path));
+}
+
