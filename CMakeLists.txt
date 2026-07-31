@@ -31,16 +31,18 @@ qt_add_qml_module(appPARPUI
     URI PARPUI
     QML_FILES
         Main.qml
-        QML_FILES
-        QML_FILES MenuContextBar.qml
-        QML_FILES MenuHelp.qml
-        QML_FILES MenuDevice.qml
-        QML_FILES MenuSound.qml
-        QML_FILES MenuFile.qml
-        QML_FILES VolumeControl.qml
-        SOURCES sqldatabase.h sqldatabase.cpp
-        SOURCES parpui.h
-        SOURCES backend.h backend.cpp
+        MenuContextBar.qml
+        MenuHelp.qml
+        MenuDevice.qml
+        MenuSound.qml
+        MenuFile.qml
+        VolumeControl.qml
+    SOURCES
+        sqldatabase.h
+        sqldatabase.cpp
+        parpui.h
+        backend.h
+        backend.cpp
 )
 
 target_include_directories(appPARPUI PRIVATE ${SQLite3_INCLUDE_DIR})
