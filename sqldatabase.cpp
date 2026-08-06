@@ -120,6 +120,7 @@ int SQLDatabase::Database_write(Sound* sound) {
 
     return 0;
 }
+
 int SQLDatabase::Database_update(Sound* sound, SoundENTRY column) {
     sqlite3 *db;
     sqlite3_stmt *stmt;
@@ -140,10 +141,36 @@ int SQLDatabase::Database_update(Sound* sound, SoundENTRY column) {
         sqlite3_close(db);
         return 1;
     }
-
-    sqlite3_bind_text(stmt, 1, sound->button_color.name().toUtf8().data(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_text(stmt, 2, sound->sound_name.toUtf8().data(), -1, SQLITE_TRANSIENT);
-    sqlite3_bind_double(stmt, 4, sound->gain);
+    switch (column) {
+    case DISPLAY_PATH:
+        sqlite3_bind_text(stmt, 1, "Path", -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, sound->display_path.toUtf8().data(), -1, SQLITE_TRANSIENT);
+        break;
+    case PLAY_BACK_PATH: qDebug() << "db update invalid column";
+        //shouldnt be used
+        break;
+    case SOUND_NAME:
+        sqlite3_bind_text(stmt, 1, "Name", -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, sound->sound_name.toUtf8().data(), -1, SQLITE_TRANSIENT);
+        break;
+    case BUTTON_COLOR:
+        sqlite3_bind_text(stmt, 1, "Color", -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, sound->button_color.name().toUtf8().data(), -1, SQLITE_TRANSIENT);
+        break;
+    case GAIN:
+        sqlite3_bind_text(stmt, 1, "Volume", -1, SQLITE_TRANSIENT);
+        sqlite3_bind_double(stmt, 2, sound->gain);
+        break;
+    case SOUND_ID: qDebug() << "db update invalid column";
+        //shouldnt be used
+        break;
+    case IS_CONVERTED: qDebug() << "db update invalid column";
+        //shouldnt be used
+        break;
+    default: qDebug() << "db update invalid column";
+        break;
+    }
+    sqlite3_bind_int(stmt, 3, sound->sound_id);
 
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {
