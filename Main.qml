@@ -31,12 +31,6 @@ Window {
             MenuDevice {}
             MenuSound {}
             MenuHelp {}
-
-            MenuBarItem{
-                enabled: false
-                text: "︿"
-
-            }
         }
         Flickable {
             Layout.fillWidth: true

@@ -16,4 +16,14 @@ struct Sound {
     int sound_id;
     bool is_converted() const { return !playback_path.isEmpty(); }
 };
+
+enum SoundENTRY{
+    DISPLAY_PATH,
+    PLAY_BACK_PATH,
+    SOUND_NAME,
+    BUTTON_COLOR,
+    GAIN,
+    SOUND_ID,
+    IS_CONVERTED
+};
 #endif // PARPUI_H

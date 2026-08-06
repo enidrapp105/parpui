@@ -8,14 +8,13 @@
 #include <QMap>
 #include <sqlite3.h>
 #include "parpui.h"
-#include "string.h"
 
 class SQLDatabase
 {
 public:
     SQLDatabase();
     void Database_create();
-    int Database_update(Sound* sound);
+    int Database_update(Sound* sound, SoundENTRY column);
     int Database_write(Sound* sound);
     int Database_write_batch(QMap<QString, Sound>* sounds);
     QMap<QString, Sound> Database_read();

@@ -120,6 +120,38 @@ int SQLDatabase::Database_write(Sound* sound) {
 
     return 0;
 }
-int SQLDatabase::Database_update(Sound* sounds) {
+int SQLDatabase::Database_update(Sound* sound, SoundENTRY column) {
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    int rc;
+    char query[] = "UPDATE SoundInfo"
+                   "SET ? = ?"
+                   "WHERE SoundId = ?";
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    rc = sqlite3_open(dbPath.toUtf8().data(), &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        return 1;
+    }
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Prepare failed: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+
+    sqlite3_bind_text(stmt, 1, sound->button_color.name().toUtf8().data(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, sound->sound_name.toUtf8().data(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_double(stmt, 4, sound->gain);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
     return 0;
 }
