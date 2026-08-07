@@ -17,6 +17,10 @@ static int read_callback(void *data, int argc, char **argv, char **azColName) {
     Sound entry;
     for (int i = 0; i < argc; i++) {
         //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        if (!argv[i]) {
+            // NULL column value
+            continue;
+        }
         if(strcmp(azColName[i], "Color") == 0) {
             entry.button_color = QColor(argv[i]);
         } else if(strcmp(azColName[i], "Name") == 0) {
