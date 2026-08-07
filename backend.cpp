@@ -19,7 +19,7 @@ static int valid_file(regex_t *regex, char* file_name){
 }
 
 void Backend::play(QString file_name){
-    QtConcurrent::run([=](){
+    (void)QtConcurrent::run([=](){
         char play_target[MAX_FILE_NAME] = {0};
         SQLDatabase *db;
         QByteArray ba = file_name.toLocal8Bit();
@@ -150,7 +150,7 @@ void Backend::add_sound(QString file_path){
 }
 
 void Backend::load_unload_devices(){
-    QtConcurrent::run([=](){
+    (void)QtConcurrent::run([=](){
         QProcess process;
         if(m_initial_startup){
             process.start("bash", QStringList() << QString(PARP_SOURCE_DIR) + "/unloaddevices");
@@ -175,11 +175,13 @@ void Backend::load_unload_devices(){
 
 void Backend::remove_sound(QString file_path){
     Sound *s = find_sound(file_path);
+    SQLDatabase *db = nullptr;
     if(!s) return;
 
     QDir(m_sounds_path).remove(QFileInfo(file_path).fileName());
 
-    m_sounds.remove(QFileInfo(file_path).fileName());
+    m_sounds.remove(s->display_path);
+    db->Database_remove_row(s);
     emit soundsChanged();
 }
 
@@ -187,7 +189,7 @@ void Backend::stop_all(){
     qDebug() << "Stopping all";
     QMutexLocker lock(&m_active_mutex);
     qDebug() << "Acquired stop lock";
-    for (paTestData *d : m_active_sounds){
+    for (paTestData *d : std::as_const(m_active_sounds)){
         d->stopRequested = true;
     }
 }

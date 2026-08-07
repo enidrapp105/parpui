@@ -17,7 +17,7 @@ struct Sound {
     bool is_converted() const { return !playback_path.isEmpty(); }
 };
 
-enum SoundENTRY{
+enum SoundENTRY {
     DISPLAY_PATH,
     SOUND_NAME,
     BUTTON_COLOR,

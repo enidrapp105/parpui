@@ -35,7 +35,7 @@ static int read_callback(void *data, int argc, char **argv, char **azColName) {
     return 0;
 }
 
-int rundb(char* dbname, char *query, void* userdata, int (*callbackfunc)(void*, int, char **, char**)) {
+int rundb(char *dbname, char *query, void *userdata, int (*callbackfunc)(void*, int, char **, char**)) {
     sqlite3 *db;
     char *zErrMsg = 0;
     int rc;
@@ -84,7 +84,7 @@ QMap<QString, Sound> SQLDatabase::Database_read() {
     return database;
 }
 
-int SQLDatabase::Database_write(Sound* sound) {
+int SQLDatabase::Database_write(Sound *sound) {
     //INSERT INTO SoundInfo (Color, Name, Path, Volume)
     //VALUES ('red', 'counting-or-not-counting-gang-violence.mp3', '/home/enid/Working/PARPUI/build/Desktop_Qt_6_11_0-Debug/sounds/counting-or-not-counting-gang-violence.mp3', '1.7')
     sqlite3 *db;
@@ -121,7 +121,39 @@ int SQLDatabase::Database_write(Sound* sound) {
     return 0;
 }
 
-int SQLDatabase::Database_update(Sound* sound, SoundENTRY column) {
+int SQLDatabase::Database_remove_row(Sound *sound) {
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    int rc;
+    char query[] = "DELETE FROM SoundInfo WHERE SoundId = ?";
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    rc = sqlite3_open(dbPath.toUtf8().data(), &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        return 1;
+    }
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Prepare failed: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+
+    sqlite3_bind_int(stmt, 1, sound->sound_id);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return 0;
+}
+
+int SQLDatabase::Database_update(Sound *sound, SoundENTRY column) {
     sqlite3 *db;
     sqlite3_stmt *stmt;
     int rc;
