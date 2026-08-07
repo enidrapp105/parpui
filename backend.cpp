@@ -106,7 +106,6 @@ void Backend::play(QString file_name){
 void Backend::load_sounds(){
     m_sounds_path = QCoreApplication::applicationDirPath() + "/sounds";
     SQLDatabase db;
-    db.Database_read();
     QDir dir(m_sounds_path);
     if(!dir.exists()){
         QDir appdir(QCoreApplication::applicationDirPath());
@@ -115,15 +114,7 @@ void Backend::load_sounds(){
     }
     QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
     m_sounds.clear();
-    for(const QString &file : files){
-
-        Sound sound = {
-            .display_path = m_sounds_path + "/" + file,
-            .sound_name = file
-        };
-        m_sounds.insert(file, sound);
-        //db.Database_write(&sound);
-    }
+    m_sounds = db.Database_read();
     emit soundsChanged();
 }
 

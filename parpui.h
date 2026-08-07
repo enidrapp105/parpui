@@ -19,11 +19,8 @@ struct Sound {
 
 enum SoundENTRY{
     DISPLAY_PATH,
-    PLAY_BACK_PATH,
     SOUND_NAME,
     BUTTON_COLOR,
     GAIN,
-    SOUND_ID,
-    IS_CONVERTED
 };
 #endif // PARPUI_H

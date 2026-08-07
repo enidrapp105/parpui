@@ -46,14 +46,18 @@ public:
     }
     Q_INVOKABLE void indiv_volume_setter(float volume, QString file_path){
         Sound* sound = find_sound(file_path);
+        SQLDatabase *db;
         if(sound->gain != volume){
             sound->gain = volume;
+            db->Database_update(sound, GAIN);
         }
     }
     Q_INVOKABLE void color_setter(QColor color, QString file_path){
         Sound* sound = find_sound(file_path);
+        SQLDatabase *db;
         if(sound->button_color != color){
             sound->button_color = color;
+            db->Database_update(sound, BUTTON_COLOR);
         }
     }
     Q_INVOKABLE float sound_gain(QString file_path){
