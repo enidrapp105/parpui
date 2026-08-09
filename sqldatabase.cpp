@@ -34,10 +34,11 @@ static int read_callback(void *data, int argc, char **argv, char **azColName) {
             entry.sound_id = atoi(argv[i]);
         }
     }
-    database->insert(entry.display_path, entry);
+    database->insert(entry.sound_name, entry);
     //printf("END\n");
     return 0;
 }
+
 
 int rundb(char *dbname, char *query, void *userdata, int (*callbackfunc)(void*, int, char **, char**)) {
     sqlite3 *db;
@@ -89,12 +90,13 @@ QMap<QString, Sound> SQLDatabase::Database_read() {
 }
 
 int SQLDatabase::Database_write(Sound *sound) {
+    //the reurn value will be the sound_id of the the sound
     //INSERT INTO SoundInfo (Color, Name, Path, Volume)
     //VALUES ('red', 'counting-or-not-counting-gang-violence.mp3', '/home/enid/Working/PARPUI/build/Desktop_Qt_6_11_0-Debug/sounds/counting-or-not-counting-gang-violence.mp3', '1.7')
     sqlite3 *db;
     sqlite3_stmt *stmt;
     int rc;
-    char query[] = "INSERT INTO SoundInfo (Color, Name, Path, Volume)"
+    char writequery[] = "INSERT INTO SoundInfo (Color, Name, Path, Volume)"
                     "VALUES (?, ?, ?, ?)";
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
     QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
@@ -103,7 +105,7 @@ int SQLDatabase::Database_write(Sound *sound) {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         return 1;
     }
-    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    rc = sqlite3_prepare_v2(db, writequery, -1, &stmt, NULL);
     if (rc != SQLITE_OK) {
         fprintf(stderr, "Prepare failed: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
@@ -114,15 +116,37 @@ int SQLDatabase::Database_write(Sound *sound) {
     sqlite3_bind_text(stmt, 3, sound->display_path.toUtf8().data(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_double(stmt, 4, sound->gain);
 
+
+
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {
         fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
     }
 
+    char readquery[] = "SELECT SoundId FROM SoundInfo WHERE Name = ?";
+
+    rc = sqlite3_prepare_v2(db, readquery, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Prepare failed: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+
+    sqlite3_bind_text(stmt, 1, sound->sound_name.toUtf8().data(), -1, SQLITE_TRANSIENT);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
+    }
+    sound->sound_id = sqlite3_column_int(stmt, 0);
+
     sqlite3_finalize(stmt);
     sqlite3_close(db);
 
-    return 0;
+
+
+
+    return sound->sound_id;
 }
 
 int SQLDatabase::Database_remove_row(Sound *sound) {

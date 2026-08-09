@@ -139,9 +139,11 @@ void Backend::add_sound(QString file_path){
         Sound sound = {
             .display_path = dest_path,
             .sound_name = file_name
+
         };
+        sound.sound_id = db->Database_write(&sound);
         m_sounds.insert(file_name, sound);
-        db->Database_write(&sound);
+
         emit soundsChanged();
     } else {
         qDebug() << "Failed:" << src.errorString();
@@ -175,13 +177,17 @@ void Backend::load_unload_devices(){
 
 void Backend::remove_sound(QString file_path){
     Sound *s = find_sound(file_path);
+    //sound_id isnt populated so the remove row query wont work
     SQLDatabase *db = nullptr;
     if(!s) return;
 
-    QDir(m_sounds_path).remove(QFileInfo(file_path).fileName());
+    QDir(m_sounds_path).remove(s->display_path);
+    if(s->is_converted())
+        QDir(m_sounds_path).remove(s->playback_path);
 
-    m_sounds.remove(s->display_path);
     db->Database_remove_row(s);
+    m_sounds.remove(s->sound_name);
+
     emit soundsChanged();
 }
 
