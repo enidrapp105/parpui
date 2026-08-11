@@ -45,6 +45,17 @@ Window {
                     model: Backend.sounds
                     Button {
                         text: modelData.replace(/\.(raw|mp3)$/, "")
+                        readonly property color customColor: {
+                            Backend.colorVersion;
+                            return Backend.color(modelData);
+                        }
+                        readonly property bool hasCustomColor: customColor.a > 0
+
+                        palette.button: hasCustomColor ? customColor : "#3C3C3C"
+                        palette.buttonText: hasCustomColor
+                            ? (customColor.hslLightness > 0.5 ? "#1A1A1A" : "#E0E0E0")
+                            : "#E0E0E0"
+
                         onClicked: Backend.play(modelData)
                         ContextMenu.menu: Menu {
                             width: 240
