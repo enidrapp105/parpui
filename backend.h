@@ -66,10 +66,7 @@ public:
     }
     float volume() const {return m_volume; }
     QStringList sounds() const {
-        QStringList result;
-        for (const Sound &s : m_sounds)
-            result.append(s.display_path);
-        return result;
+       return m_sounds.keys();
     }
     QString virtual_mic_button_text() const {return m_virtual_mic_button_text; }
 signals:
@@ -85,10 +82,9 @@ private:
         QMutexLocker lock(&m_active_mutex);
         m_active_sounds.removeOne(d);
     }
-    Sound* find_sound(const QString &display_path){
-        for(Sound &s : m_sounds)
-            if(s.display_path == display_path) return &s;
-        return nullptr;
+    Sound* find_sound(const QString &file_name_key){
+        auto it = m_sounds.find(file_name_key);
+        return (it != m_sounds.end()) ? &it.value() : nullptr;
     }
     float m_volume = 1.0f;
     QMap<QString, Sound> m_sounds;

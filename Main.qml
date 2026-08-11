@@ -32,7 +32,7 @@ Window {
             MenuSound {}
             MenuHelp {}
         }
-        Flickable {
+        GridView {
             Layout.fillWidth: true
             Layout.fillHeight: true
             contentWidth: width
@@ -44,7 +44,7 @@ Window {
                 Repeater {
                     model: Backend.sounds
                     Button {
-                        text: modelData.split("/").pop().replace(/\.(raw|mp3)$/, "")
+                        text: modelData.replace(/\.(raw|mp3)$/, "")
                         onClicked: Backend.play(modelData)
                         ContextMenu.menu: Menu {
                             width: 240
@@ -70,7 +70,10 @@ Window {
                             }
                             MenuItem {
                                 text: qsTr("Button Color")
-                                onTriggered: colorDialog.open()
+                                onTriggered: {
+                                    colorDialog.soundname = modelData
+                                    colorDialog.open()
+                                }
                             }
 
                             MenuItem {
@@ -108,8 +111,9 @@ Window {
     }
     ColorDialog {
         id: colorDialog
+        property string soundname: ""
         onAccepted: {
-
+            Backend.color_setter(colorDialog.selectedColor, soundname)
         }
     }
 

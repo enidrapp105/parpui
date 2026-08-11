@@ -33,11 +33,10 @@ void Backend::play(QString file_name){
             if(s && s->is_converted()){
                 strncpy(play_target, s->playback_path.toLocal8Bit().data(), MAX_FILE_NAME - 1);
             } else{
-                QString file = QFileInfo(file_name).fileName();
-                QString mp3_temp = m_sounds_path + "/temp/" + file;
+                QString mp3_temp = m_sounds_path + "/temp/" + file_name;
                 char raw_name[MAX_FILE_NAME] = {0};
 
-                QFile(file_name).copy(mp3_temp);
+                QFile(s->display_path).copy(mp3_temp);
                 QByteArray tmp_ba = mp3_temp.toLocal8Bit();
                 convert_mp3_to_raw(tmp_ba.data(), raw_name, sizeof(raw_name));
 
