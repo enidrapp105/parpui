@@ -12,7 +12,7 @@ static int create_callback(void *data, int argc, char **argv, char **azColName) 
     return 0;
 }
 
-static int read_callback(void *data, int argc, char **argv, char **azColName) {
+static int soundinfo_read_callback(void *data, int argc, char **argv, char **azColName) {
     QMap<QString, Sound> *database = static_cast<QMap<QString, Sound>*>(data);
     Sound entry;
     for (int i = 0; i < argc; i++) {
@@ -65,7 +65,7 @@ SQLDatabase::SQLDatabase() {
 
 }
 
-void SQLDatabase::Database_create() {
+void SQLDatabase::Database_soundinfo_create() {
     char query[] = "CREATE TABLE SoundInfo ("
                    "Color	TEXT,"
                    "Name    TEXT,"
@@ -79,17 +79,17 @@ void SQLDatabase::Database_create() {
     rundb(dbPath.toUtf8().data(), query, NULL, create_callback);
 }
 
-QMap<QString, Sound> SQLDatabase::Database_read() {
+QMap<QString, Sound> SQLDatabase::Database_soundinfo_read() {
     QMap<QString, Sound> database;
     char query[] = "SELECT * FROM SoundInfo;";
     QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
     QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
     qDebug() << "Using db path:" << dbPath;
-    rundb(dbPath.toUtf8().data(), query, &database, read_callback);
+    rundb(dbPath.toUtf8().data(), query, &database, soundinfo_read_callback);
     return database;
 }
 
-int SQLDatabase::Database_write(Sound *sound) {
+int SQLDatabase::Database_soundinfo_write(Sound *sound) {
     //the reurn value will be the sound_id of the the sound
     //INSERT INTO SoundInfo (Color, Name, Path, Volume)
     //VALUES ('red', 'counting-or-not-counting-gang-violence.mp3', '/home/enid/Working/PARPUI/build/Desktop_Qt_6_11_0-Debug/sounds/counting-or-not-counting-gang-violence.mp3', '1.7')
@@ -149,7 +149,7 @@ int SQLDatabase::Database_write(Sound *sound) {
     return sound->sound_id;
 }
 
-int SQLDatabase::Database_remove_row(Sound *sound) {
+int SQLDatabase::Database_soundinfo_remove_row(Sound *sound) {
     sqlite3 *db;
     sqlite3_stmt *stmt;
     int rc;
@@ -181,7 +181,7 @@ int SQLDatabase::Database_remove_row(Sound *sound) {
     return 0;
 }
 
-int SQLDatabase::Database_update(Sound *sound, SoundENTRY column) {
+int SQLDatabase::Database_soundinfo_update(Sound *sound, SoundENTRY column) {
     sqlite3 *db;
     sqlite3_stmt *stmt;
     int rc;

@@ -113,7 +113,7 @@ void Backend::load_sounds(){
     }
     QStringList files = dir.entryList(QStringList() << "*.raw" << "*.mp3", QDir::Files);
     m_sounds.clear();
-    m_sounds = db.Database_read();
+    m_sounds = db.Database_soundinfo_read();
     emit soundsChanged();
 }
 
@@ -140,7 +140,7 @@ void Backend::add_sound(QString file_path){
             .sound_name = file_name
 
         };
-        sound.sound_id = db->Database_write(&sound);
+        sound.sound_id = db->Database_soundinfo_write(&sound);
         m_sounds.insert(file_name, sound);
 
         emit soundsChanged();
@@ -184,7 +184,7 @@ void Backend::remove_sound(QString file_path){
     if(s->is_converted())
         QDir(m_sounds_path).remove(s->playback_path);
 
-    db->Database_remove_row(s);
+    db->Database_soundinfo_remove_row(s);
     m_sounds.remove(s->sound_name);
 
     emit soundsChanged();
