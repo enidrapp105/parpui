@@ -50,7 +50,7 @@ public:
         SQLDatabase db;
         if(sound->gain != volume) {
             sound->gain = volume;
-            db.Database_update(sound, GAIN);
+            db.Database_soundinfo_update(sound, GAIN);
         }
     }
     Q_INVOKABLE void color_setter(QColor color, QString file_path) {
@@ -58,7 +58,7 @@ public:
         SQLDatabase db;
         if(sound->button_color != color){
             sound->button_color = color;
-            db.Database_update(sound, BUTTON_COLOR);
+            db.Database_soundinfo_update(sound, BUTTON_COLOR);
             m_color_version++;
             emit colorChanged();
         }

@@ -12,12 +12,19 @@
 class SQLDatabase {
 public:
     SQLDatabase();
+
     void Database_soundinfo_create();
+    QMap<QString, Sound> Database_soundinfo_read();
     int Database_soundinfo_update(Sound *sound, SoundENTRY column);
     int Database_soundinfo_write(Sound *sound);
     int Database_soundinfo_write_batch(QMap<QString, Sound>* sounds);
     int Database_soundinfo_remove_row(Sound *sound);
-    QMap<QString, Sound> Database_soundinfo_read();
+
+
+    void Database_appsettings_create();
+    AppSettings Database_appsettings_read();
+    int Database_appsettings_update(AppSettings *settings, SettingENTRY column);
+
 };
 
 #endif // SQLDATABASE_H

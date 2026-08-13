@@ -39,6 +39,21 @@ static int soundinfo_read_callback(void *data, int argc, char **argv, char **azC
     return 0;
 }
 
+static int appsettings_read_callback(void *data, int argc, char **argv, char **azColName) {
+    AppSettings *settings = static_cast<AppSettings*>(data);
+    for (int i = 0; i < argc; i++) {
+        //printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+        if (!argv[i]) {
+            // NULL column value
+            continue;
+        } else if(strcmp(azColName[i], "Volume") == 0) {
+            char *endptr;
+            settings->volume = strtof(argv[i], &endptr);
+        }
+    }
+    //printf("END\n");
+    return 0;
+}
 
 int rundb(char *dbname, char *query, void *userdata, int (*callbackfunc)(void*, int, char **, char**)) {
     sqlite3 *db;
@@ -228,6 +243,73 @@ int SQLDatabase::Database_soundinfo_update(Sound *sound, SoundENTRY column) {
         break;
     }
     sqlite3_bind_int(stmt, 2, sound->sound_id);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        fprintf(stderr, "Execution failed: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return 0;
+}
+
+void SQLDatabase::Database_appsettings_create() {
+    char query[] = "CREATE TABLE AppSettings ("
+                   "Volume    REAL"
+                   ");"
+                   "INSERT INTO AppSettings (Volume)"
+                   "VAlUES (1.0);";
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    rundb(dbPath.toUtf8().data(), query, NULL, create_callback);
+}
+
+AppSettings SQLDatabase::Database_appsettings_read() {
+    AppSettings settings;
+    char query[] = "SELECT * FROM AppSettings;";
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    qDebug() << "Using db path:" << dbPath;
+    rundb(dbPath.toUtf8().data(), query, &settings, appsettings_read_callback);
+    return settings;
+}
+
+int SQLDatabase::Database_appsettings_update(AppSettings *settings, SettingENTRY column) {
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    int rc;
+    QString columnName;
+    switch (column) {
+    case VOLUME: columnName = "Volume"; break;
+    default: qDebug() << "db update invalid column";
+        break;
+    }
+
+    QString query = QString("UPDATE AppSettings "
+                            "SET \"%1\" = ? "
+                            ).arg(columnName);
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/sounds.db";
+    QDir().mkpath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    rc = sqlite3_open(dbPath.toUtf8().data(), &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        return 1;
+    }
+    rc = sqlite3_prepare_v2(db, query.toUtf8().data(), -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Prepare failed: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+    switch (column) {
+    case VOLUME:
+        sqlite3_bind_double(stmt, 1, settings->volume);
+        break;
+    default: qDebug() << "db update invalid column";
+        break;
+    }
 
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_DONE) {

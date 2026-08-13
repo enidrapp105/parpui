@@ -51,7 +51,8 @@ int main(int argc, char *argv[])
     QString dbPath = appDataPath + "/sounds.db";
     QDir().mkpath(appDataPath);
     if (!QFile::exists(dbPath)){
-        db.Database_create();
+        db.Database_soundinfo_create();
+        db.Database_appsettings_create();
     }
 
     Backend* backend = engine.singletonInstance<Backend*>("PARPUI", "Backend");

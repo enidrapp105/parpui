@@ -47,7 +47,8 @@ void Backend::play(QString file_name){
                 if (s) s->playback_path = QString::fromLocal8Bit(raw_name);
             }
         } else if (valid_file(&rawregex, c_file_name) == 0){
-            strncpy(play_target, ba.data(), MAX_FILE_NAME - 1);
+            Sound *s = find_sound(file_name);
+            strncpy(play_target, s->display_path.toLocal8Bit().data(), MAX_FILE_NAME - 1);
         }
 
         regfree(&mp3regex);

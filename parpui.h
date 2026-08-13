@@ -17,10 +17,19 @@ struct Sound {
     bool is_converted() const { return !playback_path.isEmpty(); }
 };
 
+struct AppSettings {
+    float volume = 1.0f;
+};
+
 enum SoundENTRY {
     DISPLAY_PATH,
     SOUND_NAME,
     BUTTON_COLOR,
     GAIN,
 };
+
+enum SettingENTRY {
+    VOLUME
+};
+
 #endif // PARPUI_H
