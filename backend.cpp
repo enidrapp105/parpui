@@ -64,7 +64,7 @@ void Backend::play(QString file_name){
         Sound *sound = find_sound(file_name);
         paTestData data = {0};
         data.stopRequested = false;
-        data.volume = this->m_volume * (sound ? sound->gain : 1.0f);
+        data.volume = this->m_settings.volume * (sound ? sound->gain : 1.0f);
         memcpy(data.file_name, play_target, MAX_FILE_NAME);
         unsigned numSamples;
         unsigned numBytes;
@@ -178,14 +178,14 @@ void Backend::load_unload_devices(){
 void Backend::remove_sound(QString file_path){
     Sound *s = find_sound(file_path);
     //sound_id isnt populated so the remove row query wont work
-    SQLDatabase *db = nullptr;
+    SQLDatabase db;
     if(!s) return;
 
     QDir(m_sounds_path).remove(s->display_path);
     if(s->is_converted())
         QDir(m_sounds_path).remove(s->playback_path);
 
-    db->Database_soundinfo_remove_row(s);
+    db.Database_soundinfo_remove_row(s);
     m_sounds.remove(s->sound_name);
 
     emit soundsChanged();

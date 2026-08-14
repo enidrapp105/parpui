@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     if (backend) {
         backend->load_sounds();
         backend->load_unload_devices();
+        backend->volume_setter(db.Database_appsettings_read().volume);
     }
 
 

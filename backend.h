@@ -28,7 +28,7 @@ class Backend : public QObject{
     Q_PROPERTY(QStringList sounds READ sounds NOTIFY soundsChanged)
     Q_PROPERTY(QString virtual_mic_button_text READ virtual_mic_button_text  NOTIFY virtualmicToggle)
     Q_PROPERTY(int colorVersion READ colorVersion NOTIFY colorChanged)
-    //Q_PROPERTY(float volume READ volume WRITE volume_setter NOTIFY volumeChanged)
+    Q_PROPERTY(float volume READ volume WRITE volume_setter NOTIFY volumeChanged)
     //Q_PROPERTY(float indivvolume READ indivvolume WRITE indiv_volume_setter NOTIFY indivvolumeChanged)
 
 public:
@@ -41,12 +41,18 @@ public:
     Q_INVOKABLE void open_sounds_folder();
 
     Q_INVOKABLE void volume_setter(float volume){
-        if(m_volume != volume){
-            m_volume = volume;
+        AppSettings settings = {
+            .volume = volume
+        };
+        SQLDatabase db;
+        if(m_settings.volume != volume){
+            m_settings =  settings;
+            db.Database_appsettings_update(&m_settings, VOLUME);
+            emit volumeChanged();
         }
     }
     Q_INVOKABLE void indiv_volume_setter(float volume, QString file_path) {
-        Sound* sound = find_sound(file_path);
+        Sound *sound = find_sound(file_path);
         SQLDatabase db;
         if(sound->gain != volume) {
             sound->gain = volume;
@@ -54,7 +60,7 @@ public:
         }
     }
     Q_INVOKABLE void color_setter(QColor color, QString file_path) {
-        Sound* sound = find_sound(file_path);
+        Sound *sound = find_sound(file_path);
         SQLDatabase db;
         if(sound->button_color != color){
             sound->button_color = color;
@@ -64,7 +70,7 @@ public:
         }
     }
     Q_INVOKABLE float sound_gain(QString file_path) {
-        Sound* sound = find_sound(file_path);
+        Sound *sound = find_sound(file_path);
         return sound ? sound->gain : 1.0f;
     }
     Q_INVOKABLE QColor color (QString file_name) {
@@ -72,12 +78,13 @@ public:
         return sound->button_color;
     }
     int colorVersion() const { return m_color_version; }
-    float volume() const {return m_volume; }
+    float volume() const {return m_settings.volume; }
     QStringList sounds() const { return m_sounds.keys(); }
     QString virtual_mic_button_text() const {return m_virtual_mic_button_text; }
 signals:
     void soundsChanged();
     void colorChanged();
+    void volumeChanged();
     void virtualmicToggle();
 
 private:
@@ -89,11 +96,13 @@ private:
         QMutexLocker lock(&m_active_mutex);
         m_active_sounds.removeOne(d);
     }
-    Sound* find_sound(const QString &file_name_key) {
+    Sound *find_sound(const QString &file_name_key) {
         auto it = m_sounds.find(file_name_key);
         return (it != m_sounds.end()) ? &it.value() : nullptr;
     }
-    float m_volume = 1.0f;
+    AppSettings m_settings = {
+        .volume = 1.0f
+    };
     QMap<QString, Sound> m_sounds;
     QString m_virtual_mic_button_text;
     QString m_sounds_path;

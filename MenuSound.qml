@@ -16,7 +16,7 @@ Menu{
         bottomPadding: 1
         contentItem: VolumeControl{
             id: volumeControl
-            label: qsTr("Master Volume")
+            label: qsTr("App Volume")
             volume: Backend.volume
             setter: function(v) { Backend.volume_setter(v) }
         }
