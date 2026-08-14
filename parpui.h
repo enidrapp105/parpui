@@ -8,7 +8,7 @@
 #include <QColor>
 #include <QObject>
 struct Sound {
-    QString display_path;   // original .mp3 — what the UI shows and buttons reference
+    QString display_path;   // original file — what the UI shows and buttons reference
     QString playback_path;  // .raw in temp — populated after first play, empty until then
     QString sound_name;
     QColor button_color = "#3C3C3C";

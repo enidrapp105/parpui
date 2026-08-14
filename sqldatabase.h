@@ -17,7 +17,7 @@ public:
     QMap<QString, Sound> Database_soundinfo_read();
     int Database_soundinfo_update(Sound *sound, SoundENTRY column);
     int Database_soundinfo_write(Sound *sound);
-    int Database_soundinfo_write_batch(QMap<QString, Sound>* sounds);
+    int Database_soundinfo_write_batch(QMap<QString, Sound>* sounds); //debug functon unused
     int Database_soundinfo_remove_row(Sound *sound);
 
 
