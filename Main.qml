@@ -60,6 +60,7 @@ Window {
                 Repeater {
                     model: Backend.sounds
                     Button {
+                        id: soundButton
                         text: modelData.replace(/\.(raw|mp3)$/, "")
                         readonly property color customColor: {
                             Backend.colorVersion;
@@ -67,22 +68,66 @@ Window {
                         }
                         readonly property bool hasCustomColor: customColor.a > 0
 
+                        property bool renaming: false
+
                         palette.button: hasCustomColor ? customColor : "#3C3C3C"
                         palette.buttonText: hasCustomColor
                             ? (customColor.hslLightness > 0.5 ? "#1A1A1A" : "#E0E0E0")
                             : "#E0E0E0"
 
-                        onClicked: Backend.play(modelData)
+                        onClicked: if(!renaming) Backend.play(modelData)
+
+                        contentItem: Item {
+                            //anchors.fill: parent
+                            implicitWidth: soundButton.renaming
+                                ? Math.max(label.implicitWidth, 100)
+                                : label.implicitWidth
+                            implicitHeight: soundButton.renaming
+                                ? Math.max(label.implicitHeight, renameField.implicitHeight)
+                                : label.implicitHeight
+
+                            Text {
+                                id: label
+                                anchors.fill: parent
+                                visible: !soundButton.renaming
+                                text: soundButton.text
+                                color: soundButton.palette.buttonText
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                elide: Text.ElideRight
+                            }
+
+                            TextField {
+                                id: renameField
+                                anchors.fill: parent
+                                visible: soundButton.renaming
+
+                                text: soundButton.text
+
+                                onVisibleChanged: {
+                                   if (visible) {
+                                        selectAll()
+                                        forceActiveFocus()
+                                    }
+                                }
+                                onAccepted: {
+                                    soundButton.renaming = false
+                                }
+                                onActiveFocusChanged: {
+                                    if (!activeFocus && soundButton.renaming) {
+                                        soundButton.renaming = false
+                                    }
+                                }
+
+                                Keys.onEscapePressed: soundButton.renaming
+                            }
+                        }
+
                         ContextMenu.menu: Menu {
                             width: 240
-                            Menu {
-                                title: qsTr("Add Tag")
-                                padding: 1
-
-                                TextField {
-                                    id: tagField
-                                    placeholderText: "example: vine sound"
-                                }
+                            MenuItem {
+                                text: qsTr("Rename")
+                                onTriggered: soundButton.renaming = true;
                             }
                             MenuBarItem {
                                 width: 239
@@ -114,7 +159,10 @@ Window {
             }
         }
     }
-
+    /***********************************
+     * Component: about dialog
+     * Purpose: contains the about content
+     */
     Dialog {
         id: aboutDialog
         title: "About PARPUI"
@@ -136,6 +184,10 @@ Window {
 
         }
     }
+    /***********************************
+     * Component: color dialog
+     * Purpose: returns the color chosen for buttons
+     */
     ColorDialog {
         id: colorDialog
         property string soundname: ""
@@ -143,7 +195,10 @@ Window {
             Backend.color_setter(colorDialog.selectedColor, soundname)
         }
     }
-
+    /***********************************
+     * Component: file add dialog
+     * Purpose: returns the real path of the selected file
+     */
     FileDialog {
         id: fileDialog
         title: "Select a sound file"

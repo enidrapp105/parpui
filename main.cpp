@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     QDir tempdir(QCoreApplication::applicationDirPath() + "/sounds/temp/");
     QStringList files = tempdir.entryList(QStringList() << "*.raw", QDir::Files);
-    for (const QString &file : files) {
+    for (const QString &file : std::as_const(files)) {
         tempdir.remove(file);
     }
 
