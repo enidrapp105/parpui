@@ -10,7 +10,10 @@ import QtQuick.Dialogs
 import PARPUI 1.0
 import PARPUI
 
-
+/***********************************
+ * Component:  Main Window
+ * Purpose: Contains the whole ui
+ */
 Window {
     width: 640
     height: 480
@@ -19,12 +22,20 @@ Window {
     color: "#1F1F1F"
     visible: true
     title: "PARPUI"
-    MouseArea{
+    /***********************************
+     * Component: Main mouse area
+     * Purpose: handles context menu region and any mouse actions
+     */
+    MouseArea {
         anchors.fill: parent
         ContextMenu.menu: MenuContextBar {}
     }
 
-    ColumnLayout{
+    /***********************************
+     * Component: Main column layout
+     * Purpose: Contains the content including the menu bar
+     */
+    ColumnLayout {
         anchors.fill: parent
         MenuBar{
             MenuFile {}
@@ -32,6 +43,11 @@ Window {
             MenuSound {}
             MenuHelp {}
         }
+
+        /***********************************
+         * Component: Sound board view
+         * Purpose: Contains the the soundboard ui
+         */
         GridView {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -68,7 +84,7 @@ Window {
                                     placeholderText: "example: vine sound"
                                 }
                             }
-                            MenuBarItem{
+                            MenuBarItem {
                                 width: 239
                                 topPadding: 1
                                 bottomPadding: 1
@@ -105,7 +121,7 @@ Window {
         anchors.centerIn: parent
         modal: true
         standardButtons: Dialog.Ok
-        ColumnLayout{
+        ColumnLayout {
             Text {
                 text: qsTr("PARPUI is a soundboard created by Enid Rapp")
                 color: "#FFFFFF"
