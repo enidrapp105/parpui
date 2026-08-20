@@ -127,7 +127,7 @@ Window {
                         ContextMenu.menu: Menu {
                             width: 240
                             MenuItem {
-                                text: qsTr("Rename")
+                                text: qsTr("&Rename...")
                                 onTriggered: soundButton.renaming = true;
                             }
                             MenuBarItem {

@@ -18,13 +18,13 @@ RowLayout {
     property var setter: function(v) {}
     Text {
         text: root.label
-        color: "#FFFFFF"
+        color: "#fcfbff"
         //Layout.preferredWidth: 90
         elide: Text.ElideRight
     }
     TextField {
         id: textField
-        color: "#FFFFFF"
+        color: "#fcfbff"
         implicitWidth: 42
         function formatVolume() {
             return (root.volume * 100).toFixed(0) + "%"
