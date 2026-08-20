@@ -69,6 +69,41 @@ public:
             emit colorChanged();
         }
     }
+    Q_INVOKABLE void name_setter(QString name, QString file_path) {
+        Sound *sound = find_sound(file_path);
+        SQLDatabase db;
+        QString extension = "." + QFileInfo(sound->sound_name).suffix();
+        if (sound->sound_name != name && sound->sound_name != name + extension) {
+            //wii.mp3 -> super.mp3
+            //name = super
+            //wii/.mp3 -> super
+            //super.mp3
+            //soundpath + super.mp3
+            QFile file(sound->display_path);
+            if (!file.rename(m_sounds_path + "/" + name + extension)) {
+                qDebug() << "Rename failed:" << file.errorString();
+            }
+            if(sound->is_converted()) {
+                QFile raw_file(sound->playback_path);
+                if (!raw_file.rename(m_sounds_path + "/temp/" + name + ".raw")) {
+                    qDebug() << "Rename failed:" << file.errorString();
+                }
+            }
+
+            //m_sounds is keyed with sound name so a new entry must be created and the old deleted
+            Sound sound_with_new_name = {
+                .display_path = m_sounds_path + "/" + name + extension,
+                .sound_name = name + extension,
+                .button_color = sound->button_color,
+                .gain = sound->gain,
+                .sound_id = sound->sound_id
+            };
+
+            db.Database_soundinfo_update(&sound_with_new_name, SOUND_NAME);
+            db.Database_soundinfo_update(&sound_with_new_name, DISPLAY_PATH);
+            this->load_sounds();
+        }
+    }
     Q_INVOKABLE float sound_gain(QString file_path) {
         Sound *sound = find_sound(file_path);
         return sound ? sound->gain : 1.0f;

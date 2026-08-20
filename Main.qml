@@ -112,6 +112,7 @@ Window {
                                 }
                                 onAccepted: {
                                     soundButton.renaming = false
+                                    Backend.name_setter(renameField.text, modelData)
                                 }
                                 onActiveFocusChanged: {
                                     if (!activeFocus && soundButton.renaming) {
