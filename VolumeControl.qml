@@ -58,19 +58,20 @@ RowLayout {
         }
         Layout.fillWidth: true
 
-        WheelHandler {
-            onWheel: (event) => {
-                if (event.angleDelta.y > 0) {
-                    slider.value = Math.min(slider.value + .1, slider.to)
-                    root.volume = slider.value
-                    root.setter(slider.value)
-                } else {
-                    slider.value = Math.max(slider.value - .1, slider.from)
-                    root.volume = slider.value
-                    root.setter(slider.value)
-                }
+
+
+    }
+    WheelHandler {
+        onWheel: (event) => {
+            if (event.angleDelta.y > 0) {
+                slider.value = Math.min(slider.value + .1, slider.to)
+                root.volume = slider.value
+                root.setter(slider.value)
+            } else {
+                slider.value = Math.max(slider.value - .1, slider.from)
+                root.volume = slider.value
+                root.setter(slider.value)
             }
         }
-
     }
 }
