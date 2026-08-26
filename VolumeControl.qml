@@ -73,5 +73,6 @@ RowLayout {
                 root.setter(slider.value)
             }
         }
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
     }
 }
