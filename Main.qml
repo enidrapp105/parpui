@@ -31,6 +31,68 @@ Window {
         ContextMenu.menu: MenuContextBar {}
     }
 
+    QtObject {
+        id: shortcutEntry
+        property string digits : ""
+        property bool active : false
+        function reset() {
+            digits = ""
+            active = false
+            digitTimer.stop()
+        }
+        function appendDigit(d) {
+            active = true
+            digits += String(d)
+            digitTimer.restart()
+            shortcutCatcher.forceActiveFocus()
+        }
+        function commit() {
+            if (digits.length > 0) {
+                var n = parseInt(digits, 10)
+                var idx = n - 1
+                if (idx >= 0 && idx < Backend.sounds.length) {
+                    Backend.play(Backend.sounds[idx])
+                }
+            }
+            reset()
+        }
+    }
+    Timer {
+        id: digitTimer
+        interval: 600
+        repeat: true
+        onTriggered: shortcutEntry.commit()
+    }
+
+    Shortcut { sequence: "Alt+0"; onActivated: shortcutEntry.appendDigit(0) }
+    Shortcut { sequence: "Alt+1"; onActivated: shortcutEntry.appendDigit(1) }
+    Shortcut { sequence: "Alt+2"; onActivated: shortcutEntry.appendDigit(2) }
+    Shortcut { sequence: "Alt+3"; onActivated: shortcutEntry.appendDigit(3) }
+    Shortcut { sequence: "Alt+4"; onActivated: shortcutEntry.appendDigit(4) }
+    Shortcut { sequence: "Alt+5"; onActivated: shortcutEntry.appendDigit(5) }
+    Shortcut { sequence: "Alt+6"; onActivated: shortcutEntry.appendDigit(6) }
+    Shortcut { sequence: "Alt+7"; onActivated: shortcutEntry.appendDigit(7) }
+    Shortcut { sequence: "Alt+8"; onActivated: shortcutEntry.appendDigit(8) }
+    Shortcut { sequence: "Alt+9"; onActivated: shortcutEntry.appendDigit(9) }
+
+    Item {
+        id: shortcutCatcher
+        anchors.fill: parent
+        focus: true
+        z: -1
+        Keys.onPressed: (event) => {
+            if (!shortcutEntry.active) return
+            var isDigit = event.key >= Qt.Key_0 && event.key <= Qt.Key_9
+            if (isDigit) {
+                shortcutEntry.appendDigit(event.key - Qt.Key_0)
+                event.accepted = true
+            }
+        }
+        Keys.onReturnPressed : if (shortcutEntry.active) { digitTimer.stop(); shortcutEntry.commit() }
+        Keys.onEnterPressed : if (shortcutEntry.active) { digitTimer.stop(); shortcutEntry.commit() }
+        Keys.onEscapePressed : if (shortcutEntry.active) shortcutEntry.reset()
+    }
+
     /***********************************
      * Component: Main column layout
      * Purpose: Contains the content including the menu bar
@@ -61,6 +123,8 @@ Window {
                     model: Backend.sounds
                     Button {
                         id: soundButton
+                        required property int index
+                        required property string modelData
                         text: modelData.replace(/\.(raw|mp3)$/, "")
                         readonly property color customColor: {
                             Backend.colorVersion;
@@ -69,6 +133,10 @@ Window {
                         readonly property bool hasCustomColor: customColor.a > 0
 
                         property bool renaming: false
+
+
+
+                        readonly property int shortcutNumber: index + 1
 
                         palette.button: hasCustomColor ? customColor : "#3C3C3C"
                         palette.buttonText: hasCustomColor
