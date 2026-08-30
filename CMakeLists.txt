@@ -43,6 +43,8 @@ qt_add_qml_module(appPARPUI
         parpui.h
         backend.h
         backend.cpp
+        QML_FILES
+        QML_FILES CheckboxControl.qml
 )
 
 target_include_directories(appPARPUI PRIVATE ${SQLite3_INCLUDE_DIR})

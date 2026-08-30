@@ -114,6 +114,7 @@ public:
     }
     int colorVersion() const { return m_color_version; }
     float volume() const {return m_settings.volume; }
+    bool turbo() const {return m_turbo; }
     QStringList sounds() const { return m_sounds.keys(); }
     QString virtual_mic_button_text() const {return m_virtual_mic_button_text; }
 signals:
@@ -146,6 +147,7 @@ private:
     int m_color_version = 0; //color change trigger
     bool m_virtual_mic_loaded = true;
     bool m_initial_startup = true;
+    bool m_turbo = false;
 };
 
 #endif // BACKEND_H

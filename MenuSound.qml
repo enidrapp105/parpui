@@ -22,10 +22,16 @@ Menu{
         }
     }
 
+    MenuBarItem {
+        contentItem: CheckboxControl {
+            label: qsTr("Turbo")
+            boundValue: Backend.turbo
+        }
+    }
 
-
-    MenuItem{
+    MenuItem {
         text: "Stop"
         onTriggered: Backend.stop_all();
     }
+
 }
