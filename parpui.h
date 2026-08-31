@@ -19,6 +19,7 @@ struct Sound {
 
 struct AppSettings {
     float volume = 1.0f;
+    bool turbo = false;
 };
 
 enum SoundENTRY {
@@ -29,7 +30,8 @@ enum SoundENTRY {
 };
 
 enum SettingENTRY {
-    VOLUME
+    VOLUME,
+    TURBO
 };
 
 #endif // PARPUI_H

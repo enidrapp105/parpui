@@ -15,6 +15,6 @@ RowLayout {
     }
     CheckBox {
         //Layout.alignment: Qt.AlignCenter
-        onToggled: root.boundValue = !root.boundValue
+        onToggled: root.setter(!root.boundValue)
     }
 }

@@ -29,6 +29,7 @@ class Backend : public QObject{
     Q_PROPERTY(QString virtual_mic_button_text READ virtual_mic_button_text  NOTIFY virtualmicToggle)
     Q_PROPERTY(int colorVersion READ colorVersion NOTIFY colorChanged)
     Q_PROPERTY(float volume READ volume WRITE volume_setter NOTIFY volumeChanged)
+    Q_PROPERTY(bool turbo READ turbo  WRITE turbo_setter NOTIFY turboChanged)
     //Q_PROPERTY(float indivvolume READ indivvolume WRITE indiv_volume_setter NOTIFY indivvolumeChanged)
 
 public:
@@ -40,15 +41,18 @@ public:
     Q_INVOKABLE void stop_all();
     Q_INVOKABLE void open_sounds_folder();
 
-    Q_INVOKABLE void volume_setter(float volume){
-        AppSettings settings = {
-            .volume = volume
-        };
+    Q_INVOKABLE void volume_setter(float volume) {
         SQLDatabase db;
-        if(m_settings.volume != volume){
-            m_settings =  settings;
+        if(m_settings.volume != volume) {
+            m_settings.volume =  volume;
             db.Database_appsettings_update(&m_settings, VOLUME);
             emit volumeChanged();
+        }
+    }
+    Q_INVOKABLE void turbo_setter(bool turbo) {
+        if(m_settings.turbo != turbo) {
+            m_settings.turbo = turbo;
+            emit turboChanged();
         }
     }
     Q_INVOKABLE void indiv_volume_setter(float volume, QString file_path) {
@@ -104,6 +108,7 @@ public:
             this->load_sounds();
         }
     }
+
     Q_INVOKABLE float sound_gain(QString file_path) {
         Sound *sound = find_sound(file_path);
         return sound ? sound->gain : 1.0f;
@@ -112,15 +117,17 @@ public:
         Sound *sound = find_sound(file_name);
         return sound->button_color;
     }
+
     int colorVersion() const { return m_color_version; }
     float volume() const {return m_settings.volume; }
-    bool turbo() const {return m_turbo; }
+    bool turbo() const {return m_settings.turbo; }
     QStringList sounds() const { return m_sounds.keys(); }
     QString virtual_mic_button_text() const {return m_virtual_mic_button_text; }
 signals:
     void soundsChanged();
     void colorChanged();
     void volumeChanged();
+    void turboChanged();
     void virtualmicToggle();
 
 private:
@@ -147,7 +154,6 @@ private:
     int m_color_version = 0; //color change trigger
     bool m_virtual_mic_loaded = true;
     bool m_initial_startup = true;
-    bool m_turbo = false;
 };
 
 #endif // BACKEND_H
