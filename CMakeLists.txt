@@ -11,13 +11,20 @@ FetchContent_Declare(
     GIT_TAG main
 )
 
-FetchContent_MakeAvailable(parp)
+FetchContent_Declare(
+    QHotkey
+    GIT_REPOSITORY https://github.com/Skycoder42/QHotkey.git
+    GIT_TAG master
+)
+
+
+FetchContent_MakeAvailable(parp QHotkey)
 FetchContent_GetProperties(parp)
 message(STATUS "parp source dir: ${parp_SOURCE_DIR}")
 
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
-find_package (SQLite3 REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 
 
@@ -37,17 +44,23 @@ qt_add_qml_module(appPARPUI
         MenuSound.qml
         MenuFile.qml
         VolumeControl.qml
+        CheckboxControl.qml
     SOURCES
         sqldatabase.h
         sqldatabase.cpp
         parpui.h
         backend.h
         backend.cpp
-        QML_FILES
-        QML_FILES CheckboxControl.qml
+        globalshortcutmanager.h
+        globalshortcutmanager.cpp
 )
 
 target_include_directories(appPARPUI PRIVATE ${SQLite3_INCLUDE_DIR})
+
+target_include_directories(qhotkey
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/QHotkey>
+)
 
 target_compile_definitions(appPARPUI PRIVATE
     USE_CMAKE
@@ -72,6 +85,7 @@ target_link_libraries(appPARPUI
         Qt6::Concurrent
         Qt6::Quick
         parp
+        QHotkey::QHotkey
         ${SQLite3_LIBRARIES}
 )
 
