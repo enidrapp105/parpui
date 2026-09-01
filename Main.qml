@@ -35,6 +35,8 @@ Window {
         id: shortcutEntry
         property string digits : ""
         property bool active : false
+        property var lastSound: null
+
         function reset() {
             digits = ""
             active = false
@@ -51,7 +53,9 @@ Window {
                 var n = parseInt(digits, 10)
                 var idx = n - 1
                 if (idx >= 0 && idx < Backend.sounds.length) {
-                    Backend.play(Backend.sounds[idx])
+                    var sound = Backend.sounds[idx]
+                    lastSound = sound
+                    Backend.play(lastSound)
                 }
             }
             reset()
@@ -62,6 +66,17 @@ Window {
         interval: 600
         repeat: true
         onTriggered: shortcutEntry.commit()
+    }
+    Timer {
+        id: turboTimer
+        interval: 90
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            if (shortcutEntry.lastSound !== null) {
+                Backend.play(shortcutEntry.lastSound)
+            }
+        }
     }
 
     Shortcut { sequence: "Alt+0"; onActivated: shortcutEntry.appendDigit(0) }
@@ -81,11 +96,21 @@ Window {
         focus: true
         z: -1
         Keys.onPressed: (event) => {
+            if (event.key === Qt.Key_Shift) {
+                if (!event.isAutoRepeat) turboTimer.start()
+                event.accepted = true
+                return
+            }
             if (!shortcutEntry.active) return
             var isDigit = event.key >= Qt.Key_0 && event.key <= Qt.Key_9
             if (isDigit) {
                 shortcutEntry.appendDigit(event.key - Qt.Key_0)
                 event.accepted = true
+            }
+        }
+        Keys.onReleased: (event) => {
+            if (event.key === Qt.Key_Shift && !event.isAutoRepeat) {
+                turboTimer.stop()
             }
         }
         Keys.onReturnPressed : if (shortcutEntry.active) { digitTimer.stop(); shortcutEntry.commit() }
@@ -143,7 +168,9 @@ Window {
                             ? (customColor.hslLightness > 0.5 ? "#1A1A1A" : "#E0E0E0")
                             : "#E0E0E0"
 
-                        onClicked: if(!renaming) Backend.play(modelData)
+                        onClicked: if(!renaming) {
+                            Backend.play(modelData)
+                        }
 
                         contentItem: Item {
                             //anchors.fill: parent
