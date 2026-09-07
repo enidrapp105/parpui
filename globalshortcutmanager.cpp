@@ -9,3 +9,24 @@ static const Qt::Key kDigitKeys[10] = {
 GlobalShortcutManager::GlobalShortcutManager(Backend *backend, QObject *parent) {
 
 }
+
+void GlobalShortcutManager::appendDigit(int d) {
+    m_digits += QString::number(d);
+    m_turboTimer.start();
+}
+
+void GlobalShortcutManager::commit() {
+    if (!m_digits.isEmpty()) {
+        int idx = m_digits.toInt() - 1;
+        playIndex(idx);
+    }
+    m_digits.clear();
+}
+
+void GlobalShortcutManager::playIndex(int idx) {
+    if (idx >= 0 && idx < m_backend->sounds().size()) {
+
+    }
+}
+
+
