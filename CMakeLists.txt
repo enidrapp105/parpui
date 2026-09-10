@@ -11,6 +11,8 @@ FetchContent_Declare(
     GIT_TAG main
 )
 
+set(QT_DEFAULT_MAJOR_VERSION 6 CACHE STRING "" FORCE)
+
 FetchContent_Declare(
     QHotkey
     GIT_REPOSITORY https://github.com/Skycoder42/QHotkey.git
