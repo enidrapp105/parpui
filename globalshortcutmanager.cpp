@@ -25,7 +25,7 @@ void GlobalShortcutManager::commit() {
 
 void GlobalShortcutManager::playIndex(int idx) {
     if (idx >= 0 && idx < m_backend->sounds().size()) {
-
+        m_backend->play(m_backend->sounds().at(idx));
     }
 }
 
