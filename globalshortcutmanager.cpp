@@ -6,8 +6,15 @@ static const Qt::Key kDigitKeys[10] = {
     Qt::Key_5, Qt::Key_6, Qt::Key_7, Qt::Key_8, Qt::Key_9,
 };
 
-GlobalShortcutManager::GlobalShortcutManager(Backend *backend, QObject *parent) {
-
+GlobalShortcutManager::GlobalShortcutManager(Backend *backend, QObject *parent)
+    : QObject(parent), m_backend(backend) {
+    m_commitTimer.setInterval(600);
+    m_commitTimer.setSingleShot(true);
+    connect(&m_commitTimer, &QTimer::timeout, this, &GlobalShortcutManager::commit);
+    m_turboTimer.setInterval(90);
+    connect(&m_turboTimer, &QTimer::timeout, this, [this]() {
+        if (m_turboIndex >= 0) playIndex(m_turboIndex);
+    });
 }
 
 void GlobalShortcutManager::appendDigit(int d) {
