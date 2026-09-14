@@ -20,6 +20,7 @@
 #include "parpui.h"
 #include "sqldatabase.h"
 #include "backend.h"
+#include "globalshortcutmanager.h"
 
 int main(int argc, char *argv[])
 {
@@ -56,6 +57,8 @@ int main(int argc, char *argv[])
     }
 
     Backend* backend = engine.singletonInstance<Backend*>("PARPUI", "Backend");
+    //new shortcut implementation still needs key up behavior
+    //GlobalShortcutManager shortcuts(backend);
     if (backend) {
         backend->load_sounds();
         backend->load_unload_devices();

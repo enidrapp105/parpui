@@ -30,8 +30,8 @@ Window {
         anchors.fill: parent
         ContextMenu.menu: MenuContextBar {}
     }
-
-    QtObject {
+    //other shortcut implementation still working on the other one
+    /**/QtObject {
         id: shortcutEntry
         property string digits : ""
         property bool active : false

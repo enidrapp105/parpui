@@ -11,10 +11,23 @@ GlobalShortcutManager::GlobalShortcutManager(Backend *backend, QObject *parent)
     m_commitTimer.setInterval(600);
     m_commitTimer.setSingleShot(true);
     connect(&m_commitTimer, &QTimer::timeout, this, &GlobalShortcutManager::commit);
-    m_turboTimer.setInterval(90);
+    m_turboTimer.setInterval(250);
     connect(&m_turboTimer, &QTimer::timeout, this, [this]() {
         if (m_turboIndex >= 0) playIndex(m_turboIndex);
     });
+    for (int i = 0; i < 10; ++i) {
+        auto *k = new QHotkey(QKeySequence(Qt::ALT | kDigitKeys[i]), true, this);
+        connect(k, &QHotkey::activated, this, [this, i]() { appendDigit(i); });
+        m_digitKeys.push_back(k);
+
+        auto *t = new QHotkey(QKeySequence(Qt::ALT | Qt::SHIFT | kDigitKeys[i]), true, this);
+        connect(t, &QHotkey::activated, this, [this, i]() {
+            m_turboIndex = i;
+            playIndex(i);
+            m_turboTimer.start();
+        });
+        m_turboKeys.push_back(t);
+    }
 }
 
 void GlobalShortcutManager::appendDigit(int d) {
