@@ -4,7 +4,9 @@
 #include <QObject>
 #include <QTimer>
 #include <QVector>
+#include <QSet>
 #include <QHotkey>
+#include "keyreleasewatcher.h"
 
 class Backend;
 
@@ -12,7 +14,7 @@ class GlobalShortcutManager : public QObject {
     Q_OBJECT
 public:
     explicit GlobalShortcutManager(Backend *backend, QObject *parent = nullptr);
-
+    //~GlobalShortcutManager() override;
 private:
     Backend *m_backend;
     QString m_digits;

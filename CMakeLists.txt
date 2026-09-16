@@ -25,8 +25,15 @@ FetchContent_GetProperties(parp)
 message(STATUS "parp source dir: ${parp_SOURCE_DIR}")
 
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Concurrent)
 find_package(SQLite3 REQUIRED)
+
+if(UNIX AND NOT APPLE)
+    find_package(X11 REQUIRED)
+    if(NOT X11_Xtst_FOUND)
+        message(FATAL_ERROR "libxtst-dev is required — install with: sudo apt install libxtst-dev")
+    endif()
+endif()
 
 
 
@@ -55,6 +62,8 @@ qt_add_qml_module(appPARPUI
         backend.cpp
         globalshortcutmanager.h
         globalshortcutmanager.cpp
+        keyreleasewatcher.h
+        keyreleasewatcher.cpp
 )
 
 target_include_directories(appPARPUI PRIVATE ${SQLite3_INCLUDE_DIR})
@@ -90,6 +99,10 @@ target_link_libraries(appPARPUI
         QHotkey::QHotkey
         ${SQLite3_LIBRARIES}
 )
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(appPARPUI PRIVATE ${X11_LIBRARIES} ${X11_Xtst_LIB})
+endif()
 
 install(TARGETS appPARPUI
     BUNDLE DESTINATION .

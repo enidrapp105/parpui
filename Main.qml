@@ -31,7 +31,7 @@ Window {
         ContextMenu.menu: MenuContextBar {}
     }
     //other shortcut implementation still working on the other one
-    /**/QtObject {
+    /**QtObject {
         id: shortcutEntry
         property string digits : ""
         property bool active : false
