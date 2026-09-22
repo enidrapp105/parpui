@@ -15,14 +15,14 @@ class KeyReleaseWatcher : public QThread {
     Q_OBJECT
 public:
     explicit KeyReleaseWatcher(QObject *parent = nullptr);
-    //~KeyReleaseWatcher() override;
+    ~KeyReleaseWatcher() override;
     void requestStop();
 
 signals:
     void nativeKeyReleased(quint32 code);
 
 protected:
-    //void run() override;
+    void run() override;
 
 private:
 #ifdef Q_OS_LINUX
