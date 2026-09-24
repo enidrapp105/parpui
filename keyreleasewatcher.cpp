@@ -71,7 +71,8 @@ void KeyReleaseWatcher::run() {
     m_controlDisplay = nullptr;
 
 }
-
+#elif defined(Q_OS_WIN)
+#error "Keyrelease not supported by OS"
 #else
 #error "Keyrelease not supported by OS"
 #endif

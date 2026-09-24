@@ -26,9 +26,15 @@ private:
     QVector<QHotkey*> m_turboKeys;
     QVector<QHotkey*> m_turboReleaseKeys;
 
+    KeyReleaseWatcher *m_releaseWatcher;
+    quint32 m_turboDigitCode = 0;
+    QSet<quint32> m_shiftNativeCodes;
+
     void appendDigit(int d);
     void commit();
     void playIndex(int idx);
+
+
 };
 
 #endif // GLOBALSHORTCUTMANAGER_H
