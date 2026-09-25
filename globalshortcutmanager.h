@@ -34,6 +34,11 @@ private:
     void commit();
     void playIndex(int idx);
 
+    void startTurbo(int idx);
+    void stopTurbo(int idx);
+    void onNativeKeyReleased(quint32 code);
+    quint32 nativeCodeForDigit(int digit) const;
+
 
 };
 
