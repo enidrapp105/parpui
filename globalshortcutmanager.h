@@ -14,7 +14,7 @@ class GlobalShortcutManager : public QObject {
     Q_OBJECT
 public:
     explicit GlobalShortcutManager(Backend *backend, QObject *parent = nullptr);
-    //~GlobalShortcutManager() override;
+    ~GlobalShortcutManager() override;
 private:
     Backend *m_backend;
     QString m_digits;
@@ -27,7 +27,7 @@ private:
     QVector<QHotkey*> m_turboReleaseKeys;
 
     KeyReleaseWatcher *m_releaseWatcher;
-    quint32 m_turboDigitCode = 0;
+    quint32 m_turboDigitNativeCode = 0;
     QSet<quint32> m_shiftNativeCodes;
 
     void appendDigit(int d);
@@ -35,7 +35,7 @@ private:
     void playIndex(int idx);
 
     void startTurbo(int idx);
-    void stopTurbo(int idx);
+    void stopTurbo();
     void onNativeKeyReleased(quint32 code);
     quint32 nativeCodeForDigit(int digit) const;
 
